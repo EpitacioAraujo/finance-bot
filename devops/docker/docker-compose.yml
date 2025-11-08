@@ -1,0 +1,94 @@
+name: whatsinterface
+
+services:
+  finance-bot:
+    build:
+      context: ../../
+      dockerfile: devops/docker/Dockerfile.app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../src:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - finance-bot-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: finance-bot-redis
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --dir /data
+      --maxmemory 256mb
+      --maxmemory-policy noeviction
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - finance-bot-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token eyJhIjoiZDg1YzAwM2I4ODUyMWZlY2FmNjI0NTlkOWRlMGM1NDIiLCJ0IjoiZWMzYzNkY2MtNzhlMy00YTI0LTkzMzAtNzMwNDk3NzJkODg2IiwicyI6IlpUaGlaR1l4TTJRdE5tUTFOUzAwWWpCakxUZ3pZVEF0TURZNU9HTTNaVFppT1RZMCJ9
+    restart: unless-stopped
+    networks:
+      - finance-bot-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  bull-board:
+    image: deadly0/bull-board:latest
+    container_name: finance-bot-bull-board
+    ports:
+      - "3001:3000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BULL_PREFIX=bull
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - finance-bot-network
+    restart: unless-stopped
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: finance-bot-redis-insight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight-data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - finance-bot-network
+    restart: unless-stopped
+
+networks:
+  finance-bot-network:
+
+volumes:
+  redis-data:
+    driver: local
+  redisinsight-data:
+    driver: local
