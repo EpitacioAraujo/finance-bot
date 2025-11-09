@@ -61,7 +61,7 @@ export class WhatsAppMetaAPI {
     return filepath;
   }
 
-  async sendMessage(numberId: number, mensagem: string) {
+  async sendMessage(numberId: string, mensagem: string) {
     const payload = {
       messaging_product: "whatsapp",
       recipient_type: "individual",

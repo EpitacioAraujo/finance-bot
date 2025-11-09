@@ -1,8 +1,20 @@
+import { IntentService } from "@app/Application/Intent/IntentService";
+import EntryRepository from "@app/Infrastructure/Repositories/TypeORM/EntryRepository";
+import UserRepository from "@app/Infrastructure/Repositories/TypeORM/UserRepository";
 import { AssemblyAIService } from "@app/Infrastructure/Services/AI/AssemblyAI";
-import { DeepSeekService } from "@app/Infrastructure/Services/AI/Deepseek";
-import { PromptBuilder } from "@app/Infrastructure/Services/AI/Deepseek/promptBuilder";
 import { WhatsAppMetaAPI } from "@app/Infrastructure/Services/WhatsApp/MetaAPI";
 import { Request, Response } from "express";
+import { randomBytes } from "node:crypto";
+
+let intentService: IntentService | null = null;
+
+function getIntentService(): IntentService {
+  if (!intentService) {
+    intentService = new IntentService();
+  }
+
+  return intentService;
+}
 
 export async function WhatsAppMessageRecive(req: Request, res: Response) {
   try {
@@ -22,7 +34,6 @@ export async function WhatsAppMessageRecive(req: Request, res: Response) {
 
     const whatsAppMetaAPI = new WhatsAppMetaAPI();
     const assemblyAIService = new AssemblyAIService();
-    const deepSeekService = new DeepSeekService();
 
     const { from, type, textContent, audio_id } = extractMessageDetails(req);
 
@@ -35,17 +46,55 @@ export async function WhatsAppMessageRecive(req: Request, res: Response) {
       }
     );
 
-    const prompt =
-      PromptBuilder.buildCommandClassificationPrompt(messageContent);
+    const intent = await getIntentService().analyze(messageContent);
 
-    const analyze = await deepSeekService.sendCompletion(prompt);
+    if (intent.action === "register_entry") {
+      const entryPayload = intent.entry;
 
-    const response = `
-      Here is the analysis of your message:
-      ${analyze}
-    `;
+      if (!entryPayload) {
+        throw new Error("register_entry action returned without entry payload");
+      }
 
-    whatsAppMetaAPI.sendMessage(from, response.trim());
+      const entryType: 1 | 0 = entryPayload.type === "income" ? 1 : 0;
+
+      const existingUser = await UserRepository.findOne({
+        where: { numberPhone: from },
+      });
+
+      const user =
+        existingUser ??
+        (await UserRepository.save(
+          UserRepository.create({
+            id: randomBytes(13).toString("hex"),
+            username: from,
+            numberPhone: from,
+          })
+        ));
+
+      const entry = EntryRepository.create({
+        id: randomBytes(13).toString("hex"),
+        date: new Date(),
+        description: entryPayload.description,
+        amount: entryPayload.value,
+        type: entryType,
+        userId: user.id,
+        user,
+      });
+
+      await EntryRepository.save(entry);
+
+      await whatsAppMetaAPI.sendMessage(
+        from,
+        "Entrada registrada com sucesso!"
+      );
+
+      return;
+    }
+
+    await whatsAppMetaAPI.sendMessage(
+      from,
+      "Desculpe, não conseguimos entender sua solicitação. Pode repetir por favor?"
+    );
   } catch (error) {
     console.error("Error processing WhatsApp message:", error);
   }

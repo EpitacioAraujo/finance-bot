@@ -3,5 +3,6 @@ export interface Entry {
   date: Date;
   description: string;
   amount: number;
-  type: "income" | "expense";
+  type: 1 | 0;
+  userId: string;
 }
