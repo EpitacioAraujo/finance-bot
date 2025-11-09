@@ -1,0 +1,24 @@
+FROM postgres:15
+
+# Install additional tools if needed
+RUN apt-get update && apt-get install -y \
+    postgresql-contrib \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy migration files, seed files and scripts
+COPY postgresql/migrations/ /migrations/
+COPY postgresql/seeds/ /seeds/
+COPY postgresql/run-migrations.sh /usr/local/bin/run-migrations.sh
+COPY postgresql/run-seeds.sh /usr/local/bin/run-seeds.sh
+COPY postgresql/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Make scripts executable
+RUN chmod +x /usr/local/bin/run-migrations.sh
+RUN chmod +x /usr/local/bin/run-seeds.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Use custom entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# Expose PostgreSQL port
+EXPOSE 5432
