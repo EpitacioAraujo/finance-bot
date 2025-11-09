@@ -10,7 +10,7 @@ export class DeepSeekService {
     });
   }
 
-  async sendChat(text: string): Promise<string> {
+  async sendCompletion(text: string): Promise<string> {
     const response = await this.client.chat.completions.create({
       model: "deepseek-chat",
       messages: [

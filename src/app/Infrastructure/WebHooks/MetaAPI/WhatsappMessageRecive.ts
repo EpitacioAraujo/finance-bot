@@ -38,7 +38,7 @@ export async function WhatsAppMessageRecive(req: Request, res: Response) {
     const prompt =
       PromptBuilder.buildCommandClassificationPrompt(messageContent);
 
-    const analyze = await deepSeekService.sendChat(prompt);
+    const analyze = await deepSeekService.sendCompletion(prompt);
 
     const response = `
       Here is the analysis of your message:
