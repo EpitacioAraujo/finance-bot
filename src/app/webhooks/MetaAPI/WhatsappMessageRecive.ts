@@ -24,24 +24,16 @@ export async function WhatsAppMessageRecive(req: Request, res: Response) {
     const assemblyAIService = new AssemblyAIService();
     const deepSeekService = new DeepSeekService();
 
-    const from = req.body.entry[0].changes[0].value.messages[0].from;
-    const type = req.body.entry[0].changes[0].value.messages[0].type;
-    const textContent =
-      req.body.entry[0].changes[0].value.messages[0].text?.body;
-    const { id: audio_id } =
-      req.body.entry[0].changes[0].value.messages[0].audio || {};
+    const { from, type, textContent, audio_id } = extractMessageDetails(req);
 
-    let messageContent = "";
-
-    if (type === "text") {
-      messageContent = textContent;
-    }
-
-    if (type === "audio") {
-      const audioUrl = await whatsAppMetaAPI.getMediaUrl(audio_id);
-      const audioPath = await whatsAppMetaAPI.audioDownload(audioUrl, audio_id);
-      messageContent = await assemblyAIService.transcribeMessage(audioPath);
-    }
+    const messageContent = await getMessageContent(
+      { whatsAppMetaAPI, assemblyAIService },
+      {
+        type,
+        textContent,
+        audio_id,
+      }
+    );
 
     const prompt =
       PromptBuilder.buildCommandClassificationPrompt(messageContent);
@@ -57,4 +49,48 @@ export async function WhatsAppMessageRecive(req: Request, res: Response) {
   } catch (error) {
     console.error("Error processing WhatsApp message:", error);
   }
+}
+
+function extractMessageDetails(req: Request) {
+  const from = req.body.entry[0].changes[0].value.messages[0].from;
+  const type = req.body.entry[0].changes[0].value.messages[0].type;
+  const textContent = req.body.entry[0].changes[0].value.messages[0].text?.body;
+  const { id: audio_id } =
+    req.body.entry[0].changes[0].value.messages[0].audio || {};
+  return { from, type, textContent, audio_id };
+}
+
+type GetMessageContentDependencies = {
+  whatsAppMetaAPI: WhatsAppMetaAPI;
+  assemblyAIService: AssemblyAIService;
+};
+
+type GetMessageContentPayload = {
+  type: string;
+  textContent: string;
+  audio_id: string;
+};
+
+async function getMessageContent(
+  dependencies: GetMessageContentDependencies,
+  payload: GetMessageContentPayload
+) {
+  let messageContent = "";
+
+  if (payload.type === "text") {
+    messageContent = payload.textContent;
+  }
+
+  if (payload.type === "audio") {
+    const audioUrl = await dependencies.whatsAppMetaAPI.getMediaUrl(
+      payload.audio_id
+    );
+    const audioPath = await dependencies.whatsAppMetaAPI.audioDownload(
+      audioUrl,
+      payload.audio_id
+    );
+    messageContent =
+      await dependencies.assemblyAIService.transcribeMessage(audioPath);
+  }
+  return messageContent;
 }
