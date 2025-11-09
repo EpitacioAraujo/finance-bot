@@ -8,10 +8,10 @@ dotenv.config({
   path: path.resolve(__dirname, "../.env"),
 });
 
-import { WhatsAppMessageRecive } from "@app/WebHooks/MetaAPI/WhatsappMessageRecive";
-import { WhatsAppWebHookValidation } from "@app/WebHooks/MetaAPI/WhatsAppWebHookValidation";
-import { AppDataSource } from "./Config/TypeORM/data-source";
-import UserRepository from "./Repositories/TypeORM/UserRepository";
+import { WhatsAppMessageRecive } from "@app/Infrastructure/WebHooks/MetaAPI/WhatsappMessageRecive";
+import { WhatsAppWebHookValidation } from "@app/Infrastructure/WebHooks/MetaAPI/WhatsAppWebHookValidation";
+import { AppDataSource } from "./Infrastructure/Config/TypeORM/data-source";
+import UserRepository from "./Infrastructure/Repositories/TypeORM/UserRepository";
 
 // to initialize the initial connection with the database, register all entities
 // and "synchronize" database schema, call "initialize()" method of a newly created database
