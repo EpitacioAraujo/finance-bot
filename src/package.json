@@ -2,11 +2,11 @@
   "name": "finance-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/V1/index.js",
+  "main": "dist/app/index.js",
   "scripts": {
-    "start": "node ./dist/V1/index.js",
-    "dev": "nodemon --watch V1 --ext ts --exec ts-node app/index.ts",
-    "build": "tsc V1/index.ts --outDir dist --target ES2022 --module commonjs --esModuleInterop --skipLibCheck --resolveJsonModule"
+    "start": "node ./dist/app/index.js",
+    "dev": "nodemon --watch app --watch @types --ext ts --exec \"ts-node --require tsconfig-paths/register app/index.ts\"",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +16,8 @@
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "openai": "^6.8.1"
+    "openai": "^6.8.1",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.5",
@@ -29,5 +30,10 @@
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "ts-node": {
+    "require": [
+      "tsconfig-paths/register"
+    ]
   }
 }

@@ -1,7 +1,7 @@
-import { AssemblyAIService } from "../../services/AI/AssemblyAI";
-import { DeepSeekService } from "../../services/AI/Deepseek";
-import { PromptBuilder } from "../../services/AI/Deepseek/promptBuilder";
-import { WhatsAppMetaAPI } from "../../services/WhatsApp/MetaAPI";
+import { AssemblyAIService } from "@app/Services/AI/AssemblyAI";
+import { DeepSeekService } from "@app/Services/AI/Deepseek";
+import { PromptBuilder } from "@app/Services/AI/Deepseek/promptBuilder";
+import { WhatsAppMetaAPI } from "@app/Services/WhatsApp/MetaAPI";
 import { Request, Response } from "express";
 
 export async function WhatsAppMessageRecive(req: Request, res: Response) {

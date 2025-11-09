@@ -3,7 +3,7 @@ import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import path from "node:path";
 
-import { WhatsAppMessageRecive } from "./webhooks/MetaAPI/WhatsappMessageRecive";
+import { WhatsAppMessageRecive } from "@app/WebHooks/MetaAPI/WhatsappMessageRecive";
 
 dotenv.config({
   path: path.resolve(__dirname, "../.env"),
