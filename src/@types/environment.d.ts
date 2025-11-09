@@ -10,6 +10,12 @@ declare global {
       PORT?: string;
       NODE_ENV?: "development" | "production" | "test";
 
+      DB_POSTGRES_USER?: string;
+      DB_POSTGRES_PASSWORD?: string;
+      DB_POSTGRES_DB?: string;
+      DB_POSTGRES_PORT?: string;
+      DB_POSTGRES_HOST?: string;
+
       // Redis Configuration
       REDIS_HOST?: string;
       REDIS_PORT?: string;
