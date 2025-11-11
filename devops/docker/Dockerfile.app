@@ -35,5 +35,5 @@ COPY src/temp ./temp
 # Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
+# Start the application using the compiled build output
+CMD ["npm", "run", "start"]

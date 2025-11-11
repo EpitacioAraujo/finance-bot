@@ -1,0 +1,7 @@
+[build]
+builder = "Docker"
+dockerfile = "devops/docker/Dockerfile.app"
+context = "."
+
+[deploy]
+start = "npm run start"

@@ -2,6 +2,7 @@ name: whatsinterface
 
 services:
   finance-bot:
+    container_name: finance-bot-app
     build:
       context: ../../
       dockerfile: devops/docker/Dockerfile.app
@@ -13,8 +14,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:
-      redis:
-        condition: service_healthy
       postgres:
         condition: service_started
     networks:
