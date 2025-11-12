@@ -1,0 +1,9 @@
+{
+  "steps": {
+    "build": {
+      "commands": [
+        "docker build -f devops/docker/Dockerfile.app -t finance-bot ."
+      ]
+    }
+  }
+}
