@@ -7,44 +7,16 @@ services:
       context: ../../
       dockerfile: devops/docker/Dockerfile.app
     ports:
-      - "3000:3000"
+      - "80:80"
     volumes:
       - ../../src:/app
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+    env_file:
+      - ../../.env
     depends_on:
       postgres:
         condition: service_started
     networks:
       - finance-bot-network
-
-  redis:
-    image: redis:7-alpine
-    container_name: finance-bot-redis
-    command: >
-      redis-server
-      --appendonly yes
-      --appendfsync everysec
-      --save 900 1
-      --save 300 10
-      --save 60 10000
-      --dir /data
-      --maxmemory 256mb
-      --maxmemory-policy noeviction
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - finance-bot-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
 
   postgres:
     build:
@@ -72,43 +44,9 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  bull-board:
-    image: deadly0/bull-board:latest
-    container_name: finance-bot-bull-board
-    ports:
-      - "3001:3000"
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - BULL_PREFIX=bull
-    depends_on:
-      redis:
-        condition: service_healthy
-    networks:
-      - finance-bot-network
-    restart: unless-stopped
-
-  redis-insight:
-    image: redis/redisinsight:latest
-    container_name: finance-bot-redis-insight
-    ports:
-      - "5540:5540"
-    volumes:
-      - redisinsight-data:/data
-    depends_on:
-      redis:
-        condition: service_healthy
-    networks:
-      - finance-bot-network
-    restart: unless-stopped
-
 networks:
   finance-bot-network:
 
 volumes:
-  redis-data:
-    driver: local
-  redisinsight-data:
-    driver: local
   postgres-data:
     driver: local
