@@ -1,4 +1,4 @@
 [build]
-builder = "Docker"
-dockerfile = "devops/docker/Dockerfile.app"
+builder = "DOCKER"
+dockerfilePath = "devops/docker/Dockerfile.app"
 context = "."
