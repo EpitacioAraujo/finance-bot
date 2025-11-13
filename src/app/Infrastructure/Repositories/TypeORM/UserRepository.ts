@@ -1,6 +1,12 @@
-import { AppDataSource } from "@app/Infrastructure/Config/TypeORM/data-source";
 import { UserEntity } from "@app/Infrastructure/Config/TypeORM/Entities/UserEntity";
+import { DataSource } from "typeorm";
 
-const UserRepository = AppDataSource.getRepository(UserEntity);
+class UserRepositoryFactory {
+  constructor(private appDataSource: DataSource) {}
 
-export default UserRepository;
+  public make() {
+    return this.appDataSource.getRepository(UserEntity);
+  }
+}
+
+export default UserRepositoryFactory;

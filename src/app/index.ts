@@ -8,18 +8,32 @@ dotenv.config({
   path: path.resolve(__dirname, "../.env"),
 });
 
+import { Env } from "@app/Domain/Entities/Env";
+
 import { WhatsAppMessageRecive } from "@app/Infrastructure/WebHooks/MetaAPI/WhatsappMessageRecive";
 import { WhatsAppWebHookValidation } from "@app/Infrastructure/WebHooks/MetaAPI/WhatsAppWebHookValidation";
-import { AppDataSource } from "./Infrastructure/Config/TypeORM/data-source";
-import EntryRepository from "./Infrastructure/Repositories/TypeORM/EntryRepository";
-import UserRepository from "./Infrastructure/Repositories/TypeORM/UserRepository";
+
+import { AppDataSourceFactory } from "./Infrastructure/Config/TypeORM/data-source";
+
+import EntryRepositoryFactory from "./Infrastructure/Repositories/TypeORM/EntryRepository";
+import UserRepositoryFactory from "./Infrastructure/Repositories/TypeORM/UserRepository";
+import { DataSource, Repository } from "typeorm";
+import { Entry } from "./Domain/Entities/Entry";
+import { User } from "./Domain/Entities/User";
 
 // to initialize the initial connection with the database, register all entities
 // and "synchronize" database schema, call "initialize()" method of a newly created database
 // once in your application bootstrap
+let appDataSource: DataSource;
+let entryRepository: Repository<Entry>;
+let userRepository: Repository<User>;
 (async () => {
   try {
-    await AppDataSource.initialize();
+    appDataSource = await new AppDataSourceFactory(
+      new Env()
+    ).dataSource.initialize();
+    entryRepository = new EntryRepositoryFactory(appDataSource).make();
+    userRepository = new UserRepositoryFactory(appDataSource).make();
   } catch (error) {
     console.log(error);
   }
@@ -34,7 +48,7 @@ app.get("/whatsapp", WhatsAppWebHookValidation);
 app.post("/whatsapp", WhatsAppMessageRecive);
 
 app.get("/teste", async (_, res) => {
-  const allUsers = await UserRepository.find();
+  const allUsers = await userRepository.find();
   res.json(allUsers);
 });
 
@@ -44,7 +58,7 @@ app.get("/dash/:phoneNumber", async (req, res) => {
   const ordenar = String(req.query["ordenar"] ?? "data");
   const ordem = String(req.query["ordem"] ?? "desc");
 
-  const user = await UserRepository.findOne({
+  const user = await userRepository.findOne({
     where: { numberPhone: phoneNumber },
   });
 
@@ -67,7 +81,8 @@ app.get("/dash/:phoneNumber", async (req, res) => {
   const orderDirection: "ASC" | "DESC" =
     ordem.toLowerCase() === "asc" ? "ASC" : "DESC";
 
-  const query = EntryRepository.createQueryBuilder("entry")
+  const query = entryRepository
+    .createQueryBuilder("entry")
     .where("entry.user_id = :userId", { userId: user.id })
     .orderBy(orderBy, orderDirection);
 
@@ -104,7 +119,7 @@ app.get("/dash/:phoneNumber", async (req, res) => {
     });
 
   const rows = entries
-    .map((entry) => {
+    .map((entry: any) => {
       const isIncome = !!entry.type;
       return `
         <tr>
@@ -191,5 +206,5 @@ app.get("/dash/:phoneNumber", async (req, res) => {
 });
 
 app.listen(process.env["PORT"] || 3000, () => {
-  console.log("Server is running...");
+  console.log(`Server is running on port ${process.env["PORT"] || 3000}`);
 });

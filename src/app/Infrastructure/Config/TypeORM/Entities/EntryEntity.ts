@@ -13,7 +13,7 @@ import { UserEntity } from "./UserEntity";
   name: "entries",
 })
 export class EntryEntity implements Entry {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: "varchar", length: 52 })
   id!: string;
 
   @Column({ type: "timestamp" })
