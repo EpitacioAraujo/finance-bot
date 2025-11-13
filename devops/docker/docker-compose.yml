@@ -1,17 +1,15 @@
 name: whatsinterface
 
 services:
-  finance-bot:
+  app:
     container_name: finance-bot-app
     build:
       context: ../../
       dockerfile: devops/docker/Dockerfile.app
     ports:
-      - "80:80"
+      - "3000:80"
     volumes:
       - ../../src:/app
-    env_file:
-      - ../../.env
     depends_on:
       postgres:
         condition: service_started
@@ -19,10 +17,10 @@ services:
       - finance-bot-network
 
   postgres:
+    container_name: finance-bot-postgre
     build:
       context: ../
       dockerfile: ./docker/Dockerfile.postgres
-    container_name: financial_bot_postgre
     environment:
       POSTGRES_USER: finance_user
       POSTGRES_PASSWORD: finance_password

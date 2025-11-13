@@ -2,11 +2,11 @@
   "name": "finance-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/app/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch app/index.ts",
-    "build": "swc app -d dist",
-    "start": "node dist/app/index.js"
+    "build": "swc app -d dist --strip-leading-paths app",
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
