@@ -12,12 +12,12 @@ export class AppDataSourceFactory {
 
   private make() {
     return new DataSource({
-      type: "postgres",
-      host: this.env.dbPostgresHost,
-      port: Number(this.env.dbPostgresPort),
-      username: this.env.dbPostgresUser,
-      password: this.env.dbPostgresPassword,
-      database: this.env.dbPostgresDb,
+      type: this.env.dbType as any,
+      host: this.env.dbHost,
+      port: Number(this.env.dbPort),
+      username: this.env.dbUser,
+      password: this.env.dbPassword,
+      database: this.env.dbName,
       synchronize: false,
       logging: true,
       entities: [UserEntity, EntryEntity],

@@ -3,18 +3,17 @@ export class Env {
 
   public nodeEnv: string = process.env["NODE_ENV"] || "development";
 
-  public dbPostgresHost: string =
-    process.env["DB_POSTGRES_HOST"] || "localhost";
+  public dbType: string = process.env["DB_TYPE"] || "mysql";
 
-  public dbPostgresPort: string = process.env["DB_POSTGRES_PORT"] || "5432";
+  public dbHost: string = process.env["DB_HOST"] || "localhost";
 
-  public dbPostgresDb: string = process.env["DB_POSTGRES_DB"] || "finance_bot";
+  public dbPort: string = process.env["DB_PORT"] || "3306";
 
-  public dbPostgresUser: string =
-    process.env["DB_POSTGRES_USER"] || "finance_user";
+  public dbName: string = process.env["DB_NAME"] || "finance_bot";
 
-  public dbPostgresPassword: string =
-    process.env["DB_POSTGRES_PASSWORD"] || "finance_password";
+  public dbUser: string = process.env["DB_USER"] || "finance_user";
+
+  public dbPassword: string = process.env["DB_PASSWORD"] || "finance_password";
 
   public redisHost: string = process.env["REDIS_HOST"] || "localhost";
 
