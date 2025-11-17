@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch app/index.ts",
     "build": "swc app -d dist --strip-leading-paths app",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "migrate": "tsx scripts/runPostgresMigrations.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,8 +17,8 @@
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "mysql": "^2.18.1",
     "openai": "^6.8.1",
+    "pg": "^8.16.3",
     "typeorm": "^0.3.27",
     "zod": "^4.1.12"
   },
@@ -26,6 +27,7 @@
     "@swc/core": "^1.15.1",
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
+    "@types/pg": "^8.15.6",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "eslint": "^9.39.1",

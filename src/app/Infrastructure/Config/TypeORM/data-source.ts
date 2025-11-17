@@ -11,7 +11,14 @@ export class AppDataSourceFactory {
   }
 
   private make() {
-    return new DataSource({
+    console.log("Initializing database connection...");
+    console.log(`Database type: ${this.env.dbType}`);
+    console.log(`Database host: ${this.env.dbHost}`);
+    console.log(`Database port: ${this.env.dbPort}`);
+    console.log(`Database name: ${this.env.dbName}`);
+    console.log(`Database user: ${this.env.dbUser}`);
+
+    const dataSource = new DataSource({
       type: this.env.dbType as any,
       host: this.env.dbHost,
       port: Number(this.env.dbPort),
@@ -21,8 +28,21 @@ export class AppDataSourceFactory {
       synchronize: false,
       logging: true,
       entities: [UserEntity, EntryEntity],
+      ssl:
+        this.env.dbType === "postgres" ? { rejectUnauthorized: false } : false,
       subscribers: [],
       migrations: [],
     });
+
+    dataSource
+      .initialize()
+      .then(() => {
+        console.log("Database connection established successfully");
+      })
+      .catch((error) => {
+        console.error("Database connection failed:", error);
+      });
+
+    return dataSource;
   }
 }
