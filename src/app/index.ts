@@ -4,33 +4,33 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "node:path";
 
-import { DataSource, Repository } from "typeorm";
-
 dotenv.config({
   path: path.resolve(__dirname, "../.env"),
 });
 
+import { DataSource } from "typeorm";
+
 import { Env } from "@app/Domain/Entities/Env";
-
-import { WhatsAppMessageRecive } from "@app/Infrastructure/WebHooks/MetaAPI/WhatsappMessageRecive";
-import { WhatsAppWebHookValidation } from "@app/Infrastructure/WebHooks/MetaAPI/WhatsAppWebHookValidation";
-
-import { AppDataSourceFactory } from "@app/Infrastructure/Config/TypeORM/data-source";
-
-import EntryRepositoryFactory from "@app/Infrastructure/Repositories/TypeORM/EntryRepository";
-import UserRepositoryFactory from "@app/Infrastructure/Repositories/TypeORM/UserRepository";
-
-import { Entry } from "@app/Domain/Entities/Entry";
-import { User } from "@app/Domain/Entities/User";
-
 import { LoadDashBoardUseCase } from "@app/Application/UseCases/LoadDashBoard";
+import { AppDataSourceFactory } from "@app/Infrastructure/Config/TypeORM/data-source";
+import EntryRepositoryFactory, {
+  TEntryRepository,
+} from "@app/Infrastructure/Repositories/TypeORM/EntryRepository";
+import UserRepositoryFactory, {
+  TUserRepository,
+} from "@app/Infrastructure/Repositories/TypeORM/UserRepository";
+import { WhatsAppMessageReceiveHandler } from "@app/Infrastructure/WebHooks/MetaAPI/WhatsappMessageRecive";
+import { WhatsAppWebHookValidation } from "@app/Infrastructure/WebHooks/MetaAPI/WhatsAppWebHookValidation";
+import { WhatsAppMetaAPI } from "@app/Infrastructure/Services/WhatsApp/MetaAPI";
+import { AssemblyAIService } from "@app/Infrastructure/Services/AI/AssemblyAI";
 
 // to initialize the initial connection with the database, register all entities
 // and "synchronize" database schema, call "initialize()" method of a newly created database
 // once in your application bootstrap
 let appDataSource: DataSource;
-let entryRepository: Repository<Entry>;
-let userRepository: Repository<User>;
+let entryRepository: TEntryRepository;
+let userRepository: TUserRepository;
+let whatsAppMessageHandler: WhatsAppMessageReceiveHandler | null = null;
 (async () => {
   try {
     appDataSource = await new AppDataSourceFactory(
@@ -38,6 +38,12 @@ let userRepository: Repository<User>;
     ).dataSource.initialize();
     entryRepository = new EntryRepositoryFactory(appDataSource).make();
     userRepository = new UserRepositoryFactory(appDataSource).make();
+    whatsAppMessageHandler = new WhatsAppMessageReceiveHandler(
+      entryRepository,
+      userRepository,
+      new WhatsAppMetaAPI(),
+      new AssemblyAIService()
+    );
   } catch (error) {
     console.log(error);
   }
@@ -49,7 +55,14 @@ app.use(express.json());
 
 app.get("/whatsapp", WhatsAppWebHookValidation);
 
-app.post("/whatsapp", WhatsAppMessageRecive);
+app.post("/whatsapp", (req, res) => {
+  if (!whatsAppMessageHandler) {
+    res.status(503).send("Service unavailable");
+    return;
+  }
+
+  return whatsAppMessageHandler.handle(req, res);
+});
 
 app.get("/teste", async (_, res) => {
   const allUsers = await userRepository.find();

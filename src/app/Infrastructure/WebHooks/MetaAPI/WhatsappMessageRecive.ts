@@ -1,145 +1,162 @@
 import { IntentService } from "@app/Application/Intent/IntentService";
-import EntryRepository from "@app/Infrastructure/Repositories/TypeORM/EntryRepository";
-import UserRepository from "@app/Infrastructure/Repositories/TypeORM/UserRepository";
+import type { TEntryRepository } from "@app/Infrastructure/Repositories/TypeORM/EntryRepository";
+import type { TUserRepository } from "@app/Infrastructure/Repositories/TypeORM/UserRepository";
 import { AssemblyAIService } from "@app/Infrastructure/Services/AI/AssemblyAI";
 import { WhatsAppMetaAPI } from "@app/Infrastructure/Services/WhatsApp/MetaAPI";
 import { Request, Response } from "express";
 import { randomBytes } from "node:crypto";
 
-let intentService: IntentService | null = null;
-
-function getIntentService(): IntentService {
-  if (!intentService) {
-    intentService = new IntentService();
-  }
-
-  return intentService;
-}
-
-export async function WhatsAppMessageRecive(req: Request, res: Response) {
-  try {
-    res.status(200).send("OK");
-
-    const statuses = req.body.entry[0].changes[0].value.statuses;
-
-    if (statuses && statuses.length > 0) {
-      console.log("Status update received:", statuses);
-      return;
-    }
-
-    if (req.body.object !== "whatsapp_business_account") {
-      console.log(req.body.object);
-      return;
-    }
-
-    const whatsAppMetaAPI = new WhatsAppMetaAPI();
-    const assemblyAIService = new AssemblyAIService();
-
-    const { from, type, textContent, audio_id } = extractMessageDetails(req);
-
-    const messageContent = await getMessageContent(
-      { whatsAppMetaAPI, assemblyAIService },
-      {
-        type,
-        textContent,
-        audio_id,
-      }
-    );
-
-    const intent = await getIntentService().analyze(messageContent);
-
-    if (intent.action === "register_entry") {
-      const entryPayload = intent.entry;
-
-      if (!entryPayload) {
-        throw new Error("register_entry action returned without entry payload");
-      }
-
-      const entryType: 1 | 0 = entryPayload.type === "income" ? 1 : 0;
-
-      const existingUser = await UserRepository.findOne({
-        where: { numberPhone: from },
-      });
-
-      const user =
-        existingUser ??
-        (await UserRepository.save(
-          UserRepository.create({
-            id: randomBytes(13).toString("hex"),
-            username: from,
-            numberPhone: from,
-          })
-        ));
-
-      const entry = EntryRepository.create({
-        id: randomBytes(13).toString("hex"),
-        date: new Date(),
-        description: entryPayload.description,
-        amount: entryPayload.value,
-        type: entryType,
-        userId: user.id,
-        user,
-      });
-
-      await EntryRepository.save(entry);
-
-      await whatsAppMetaAPI.sendMessage(
-        from,
-        "Entrada registrada com sucesso!"
-      );
-
-      return;
-    }
-
-    await whatsAppMetaAPI.sendMessage(
-      from,
-      "Desculpe, não conseguimos entender sua solicitação. Pode repetir por favor?"
-    );
-  } catch (error) {
-    console.error("Error processing WhatsApp message:", error);
-  }
-}
-
-function extractMessageDetails(req: Request) {
-  const from = req.body.entry[0].changes[0].value.messages[0].from;
-  const type = req.body.entry[0].changes[0].value.messages[0].type;
-  const textContent = req.body.entry[0].changes[0].value.messages[0].text?.body;
-  const { id: audio_id } =
-    req.body.entry[0].changes[0].value.messages[0].audio || {};
-  return { from, type, textContent, audio_id };
-}
-
-type GetMessageContentDependencies = {
-  whatsAppMetaAPI: WhatsAppMetaAPI;
-  assemblyAIService: AssemblyAIService;
-};
-
-type GetMessageContentPayload = {
+type MessageDetails = {
+  from: string;
   type: string;
-  textContent: string;
-  audio_id: string;
+  textContent?: string;
+  audioId?: string;
 };
 
-async function getMessageContent(
-  dependencies: GetMessageContentDependencies,
-  payload: GetMessageContentPayload
-) {
-  let messageContent = "";
+export class WhatsAppMessageReceiveHandler {
+  constructor(
+    private readonly entryRepository: TEntryRepository,
+    private readonly userRepository: TUserRepository,
+    private readonly whatsAppMetaAPI: WhatsAppMetaAPI,
+    private readonly assemblyAIService: AssemblyAIService,
+    private intentService: IntentService | null = null
+  ) {}
 
-  if (payload.type === "text") {
-    messageContent = payload.textContent;
+  public async handle(req: Request, res: Response): Promise<void> {
+    try {
+      res.status(200).send("OK");
+
+      const changeValue = req.body?.entry?.[0]?.changes?.[0]?.value;
+
+      if (!changeValue) {
+        console.log("Received webhook without change value payload");
+        return;
+      }
+
+      const statuses = changeValue.statuses;
+      if (Array.isArray(statuses) && statuses.length > 0) {
+        console.log("Status update received:", statuses);
+        return;
+      }
+
+      if (req.body?.object !== "whatsapp_business_account") {
+        console.log("Ignoring unsupported webhook object:", req.body?.object);
+        return;
+      }
+
+      const messageDetails = this.extractMessageDetails(changeValue);
+      if (!messageDetails) {
+        console.log("No message details found in payload");
+        return;
+      }
+
+      const messageContent = await this.getMessageContent(messageDetails);
+
+      if (!messageContent.trim()) {
+        await this.whatsAppMetaAPI.sendMessage(
+          messageDetails.from,
+          "Não conseguimos processar sua mensagem. Pode tentar novamente?"
+        );
+        return;
+      }
+
+      const intent = await this.getIntentService().analyze(messageContent);
+
+      if (intent.action === "register_entry") {
+        const entryPayload = intent.entry;
+
+        if (!entryPayload) {
+          throw new Error(
+            "register_entry action returned without entry payload"
+          );
+        }
+
+        const entryType: 1 | 0 = entryPayload.type === "income" ? 1 : 0;
+
+        const existingUser = await this.userRepository.findOne({
+          where: { numberPhone: messageDetails.from },
+        });
+
+        const user =
+          existingUser ??
+          (await this.userRepository.save(
+            this.userRepository.create({
+              id: randomBytes(13).toString("hex"),
+              username: messageDetails.from,
+              numberPhone: messageDetails.from,
+            })
+          ));
+
+        const entry = this.entryRepository.create({
+          id: randomBytes(13).toString("hex"),
+          date: new Date(),
+          description: entryPayload.description,
+          amount: entryPayload.value,
+          type: entryType,
+          userId: user.id,
+          user,
+        });
+
+        await this.entryRepository.save(entry);
+
+        await this.whatsAppMetaAPI.sendMessage(
+          messageDetails.from,
+          "Entrada registrada com sucesso!"
+        );
+
+        return;
+      }
+
+      await this.whatsAppMetaAPI.sendMessage(
+        messageDetails.from,
+        "Desculpe, não conseguimos entender sua solicitação. Pode repetir por favor?"
+      );
+    } catch (error) {
+      console.error("Error processing WhatsApp message:", error);
+    }
   }
 
-  if (payload.type === "audio") {
-    const audioUrl = await dependencies.whatsAppMetaAPI.getMediaUrl(
-      payload.audio_id
-    );
-    const audioPath = await dependencies.whatsAppMetaAPI.audioDownload(
-      audioUrl,
-      payload.audio_id
-    );
-    messageContent =
-      await dependencies.assemblyAIService.transcribeMessage(audioPath);
+  private getIntentService(): IntentService {
+    if (!this.intentService) {
+      this.intentService = new IntentService();
+    }
+
+    return this.intentService;
   }
-  return messageContent;
+
+  private extractMessageDetails(changeValue: any): MessageDetails | null {
+    const message = changeValue?.messages?.[0];
+
+    if (!message?.from || !message?.type) {
+      return null;
+    }
+
+    return {
+      from: message.from,
+      type: message.type,
+      textContent: message.text?.body,
+      audioId: message.audio?.id,
+    };
+  }
+
+  private async getMessageContent(details: MessageDetails): Promise<string> {
+    if (details.type === "text" && details.textContent) {
+      return details.textContent;
+    }
+
+    if (details.type === "audio") {
+      if (!details.audioId) {
+        throw new Error("Audio message missing media identifier");
+      }
+
+      const audioUrl = await this.whatsAppMetaAPI.getMediaUrl(details.audioId);
+      const audioPath = await this.whatsAppMetaAPI.audioDownload(
+        audioUrl,
+        details.audioId
+      );
+      return this.assemblyAIService.transcribeMessage(audioPath);
+    }
+
+    return details.textContent ?? "";
+  }
 }

@@ -10,3 +10,5 @@ class EntryRepositoryFactory {
 }
 
 export default EntryRepositoryFactory;
+
+export type TEntryRepository = ReturnType<EntryRepositoryFactory["make"]>;

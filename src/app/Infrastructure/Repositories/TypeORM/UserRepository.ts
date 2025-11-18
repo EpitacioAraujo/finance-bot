@@ -10,3 +10,5 @@ class UserRepositoryFactory {
 }
 
 export default UserRepositoryFactory;
+
+export type TUserRepository = ReturnType<UserRepositoryFactory["make"]>;
