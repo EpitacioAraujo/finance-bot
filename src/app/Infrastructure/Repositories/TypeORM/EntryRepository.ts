@@ -1,14 +1,18 @@
+import { Entry } from "@app/Domain/Entities/Entry";
 import { EntryEntity } from "@app/Infrastructure/Config/TypeORM/Entities/EntryEntity";
+import { EntryRepository } from "@app/Domain/Repositories/EntryRepository";
 import { DataSource } from "typeorm";
 
-class EntryRepositoryFactory {
+export class EntryRepositoryFactory {
   constructor(private appDataSource: DataSource) {}
 
-  public make() {
-    return this.appDataSource.getRepository(EntryEntity);
+  public make(): EntryRepository {
+    const repository = this.appDataSource.getRepository(EntryEntity);
+    return {
+      register: async (data: Entry) => {
+        await repository.save(data);
+        return true;
+      },
+    };
   }
 }
-
-export default EntryRepositoryFactory;
-
-export type TEntryRepository = ReturnType<EntryRepositoryFactory["make"]>;
