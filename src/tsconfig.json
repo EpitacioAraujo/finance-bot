@@ -12,7 +12,8 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "@app/*": ["app/*"]
+      "@app/*": ["app/*"],
+      "@MyFW/*": ["app/Infrastructure/FW/MyFW/*"]
     },
     "typeRoots": ["./node_modules/@types", "./@types"],
     "resolveJsonModule": true,
