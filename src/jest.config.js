@@ -14,4 +14,17 @@ module.exports = {
       tsconfig: "<rootDir>/tsconfig.json",
     },
   },
+  collectCoverageFrom: [
+    "app/**/*.ts",
+    "!app/**/*.d.ts",
+    "!app/**/*.test.ts",
+    "!app/**/*.spec.ts",
+    "!app/__tests__/**",
+  ],
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/.jest/",
+  ],
+  coverageReporters: ["text", "lcov", "html"],
+  coverageDirectory: "<rootDir>/coverage",
 }

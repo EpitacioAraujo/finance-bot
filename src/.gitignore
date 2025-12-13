@@ -6,6 +6,9 @@ package-lock.json
 dist/
 *.tsbuildinfo
 
+# Jest
+coverage/
+
 # Environment
 .env
 .env.local
