@@ -7,7 +7,7 @@
     "emitDecoratorMetadata": true,
 
     /* Modules */
-    "module": "commonjs",
+    "module": "es2022",
     "rootDir": "./",
     "moduleResolution": "node",
     "baseUrl": "./",
@@ -16,6 +16,7 @@
       "@MyFW/*": ["app/Infrastructure/FW/MyFW/*"]
     },
     "typeRoots": ["./node_modules/@types", "./@types"],
+    "types": ["jest"],
     "resolveJsonModule": true,
 
     /* Emit */
@@ -51,5 +52,5 @@
     "skipLibCheck": true
   },
   "include": ["@types/**/*.d.ts", "app/**/*", "modules/**/*", "src/**/*"],
-  "exclude": ["node_modules", "dist", "temp", "**/*.spec.ts", "**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "temp", "**/*.spec.ts"]
 }

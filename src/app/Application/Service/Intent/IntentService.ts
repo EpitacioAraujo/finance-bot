@@ -1,11 +1,11 @@
-import OpenAI from "openai";
-import { z } from "zod";
+import OpenAI from "openai"
+import { z } from "zod"
 
 const EntrySchema = z.object({
   type: z.enum(["income", "expense"]),
   value: z.number().positive(),
   description: z.string().min(3),
-});
+})
 
 const IntentSchema = z
   .object({
@@ -18,7 +18,7 @@ const IntentSchema = z
         code: z.ZodIssueCode.custom,
         message: "register_entry action requires entry payload",
         path: ["entry"],
-      });
+      })
     }
 
     if (data.action === "unknown_action" && data.entry) {
@@ -26,33 +26,33 @@ const IntentSchema = z
         code: z.ZodIssueCode.custom,
         message: "unknown_action must not include entry",
         path: ["entry"],
-      });
+      })
     }
-  });
+  })
 
-export type IntentResult = z.infer<typeof IntentSchema>;
+export type IntentResult = z.infer<typeof IntentSchema>
 
 export class IntentService {
-  private client: OpenAI;
-  private model: string;
+  private client: OpenAI
+  private model: string
 
   constructor(model = process.env["DEEPSEEK_MODEL"] || "deepseek-chat") {
-    const apiKey = process.env["DEEPSEEK_API_KEY"];
+    const apiKey = process.env["DEEPSEEK_API_KEY"]
 
     if (!apiKey) {
-      throw new Error("DEEPSEEK_API_KEY environment variable is not set");
+      throw new Error("DEEPSEEK_API_KEY environment variable is not set")
     }
 
     this.client = new OpenAI({
       apiKey,
       baseURL: "https://api.deepseek.com",
-    });
-    this.model = model;
+    })
+    this.model = model
   }
 
   async analyze(message: string): Promise<IntentResult> {
     if (!message.trim()) {
-      return { action: "unknown_action", entry: null };
+      return { action: "unknown_action", entry: null }
     }
 
     const response = await this.client.chat.completions.create({
@@ -77,29 +77,29 @@ export class IntentService {
           ].join("\n"),
         },
       ],
-    });
+    })
 
-    const content = response.choices?.[0]?.message?.content;
+    const content = response.choices?.[0]?.message?.content
 
     if (!content) {
-      throw new Error("Intent response had no content");
+      throw new Error("Intent response had no content")
     }
 
-    let parsedJson: unknown;
+    let parsedJson: unknown
 
     try {
-      parsedJson = JSON.parse(content);
+      parsedJson = JSON.parse(content)
     } catch (error) {
       throw new Error(
         `Unable to parse intent JSON: ${(error as Error).message}`
-      );
+      )
     }
 
-    const intent = IntentSchema.parse(parsedJson);
+    const intent = IntentSchema.parse(parsedJson)
 
     return {
       action: intent.action,
       entry: intent.entry,
-    } satisfies IntentResult;
+    } satisfies IntentResult
   }
 }

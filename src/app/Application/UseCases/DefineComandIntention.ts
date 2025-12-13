@@ -1,25 +1,25 @@
 interface InputDTO {
-  commandText: string;
+  commandText: string
 }
 
 export class DefineComandIntentionUseCase {
   constructor() {}
 
   public async execute(commandText: string): Promise<any> {
-    const intent = await this.getIntentService().analyze(messageContent);
+    const intent = await this.getIntentService().analyze(messageContent)
 
     if (intent.action === "register_entry") {
-      const entryPayload = intent.entry;
+      const entryPayload = intent.entry
 
       if (!entryPayload) {
-        throw new Error("register_entry action returned without entry payload");
+        throw new Error("register_entry action returned without entry payload")
       }
 
-      const entryType: 1 | 0 = entryPayload.type === "income" ? 1 : 0;
+      const entryType: 1 | 0 = entryPayload.type === "income" ? 1 : 0
 
       const existingUser = await this.userRepository.findOne({
         where: { numberPhone: messageDetails.from },
-      });
+      })
 
       const user =
         existingUser ??
@@ -29,7 +29,7 @@ export class DefineComandIntentionUseCase {
             username: messageDetails.from,
             numberPhone: messageDetails.from,
           })
-        ));
+        ))
 
       const entry = this.entryRepository.create({
         id: randomBytes(13).toString("hex"),
@@ -39,21 +39,21 @@ export class DefineComandIntentionUseCase {
         type: entryType,
         userId: user.id,
         user,
-      });
+      })
 
-      await this.entryRepository.save(entry);
+      await this.entryRepository.save(entry)
 
       await this.whatsAppMetaAPI.sendMessage(
         messageDetails.from,
         "Entrada registrada com sucesso!"
-      );
+      )
 
-      return;
+      return
     }
 
     await this.whatsAppMetaAPI.sendMessage(
       messageDetails.from,
       "Desculpe, não conseguimos entender sua solicitação. Pode repetir por favor?"
-    );
+    )
   }
 }

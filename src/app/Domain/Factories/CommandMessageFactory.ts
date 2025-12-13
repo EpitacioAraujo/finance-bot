@@ -1,12 +1,12 @@
-import { CommandMessage } from "../Entities/CommandMessage";
-import { Security } from "../Services/Security";
+import { CommandMessage } from "../Entities/CommandMessage"
+import { Security } from "../Services/Security"
 
 interface InputDTO {
-  from: string;
-  contentType: "text" | "audio";
-  content: string;
-  audioPath: string | null;
-  "meta-data": any;
+  from: string
+  contentType: "text" | "audio"
+  content: string
+  audioPath: string | null
+  "meta-data": any
 }
 
 export class CommandMessageFactory {
@@ -18,6 +18,6 @@ export class CommandMessageFactory {
       content: input.content,
       audioPath: input.audioPath,
       "meta-data": input["meta-data"],
-    };
+    }
   }
 }

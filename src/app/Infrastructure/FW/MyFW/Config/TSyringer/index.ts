@@ -1,18 +1,18 @@
-import { container, DependencyContainer, InjectionToken } from "tsyringe";
-import { bootstrapContainer } from "./bootstrap";
+import { container, DependencyContainer, InjectionToken } from "tsyringe"
+import { bootstrapContainer } from "./bootstrap"
 
 export class TSyringer {
-  private container!: DependencyContainer;
+  private container!: DependencyContainer
 
   constructor() {
-    this.container = container;
+    this.container = container
   }
 
   public resolve<T>(token: InjectionToken<T>): T {
-    return this.container.resolve<T>(token);
+    return this.container.resolve<T>(token)
   }
 
   public async bootstrap() {
-    await bootstrapContainer(this.container);
+    await bootstrapContainer(this.container)
   }
 }

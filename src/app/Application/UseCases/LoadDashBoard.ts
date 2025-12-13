@@ -1,52 +1,52 @@
-import { Entry } from "@app/Domain/Entities/Entry";
-import { Repository } from "typeorm";
+import { Entry } from "@app/Domain/Entities/Entry"
+import { Repository } from "typeorm"
 
 interface IPayload {
-  user: any;
-  ordenar: string;
-  ordem: string;
-  tipo: string;
+  user: any
+  ordenar: string
+  ordem: string
+  tipo: string
 }
 export class LoadDashBoardUseCase {
   constructor(private entryRepository: Repository<Entry>) {}
 
   public async execute(payload: IPayload): Promise<string> {
-    const { user, ordenar, ordem, tipo } = payload;
+    const { user, ordenar, ordem, tipo } = payload
 
     const sortMap: Record<string, string> = {
       data: "entry.date",
       valor: "entry.amount",
       tipo: "entry.type",
-    };
+    }
 
-    const orderBy = sortMap[ordenar] ?? sortMap["data"] ?? "entry.date";
+    const orderBy = sortMap[ordenar] ?? sortMap["data"] ?? "entry.date"
     const orderDirection: "ASC" | "DESC" =
-      ordem.toLowerCase() === "asc" ? "ASC" : "DESC";
+      ordem.toLowerCase() === "asc" ? "ASC" : "DESC"
 
     const query = this.entryRepository
       .createQueryBuilder("entry")
       .where("entry.user_id = :userId", { userId: user.id })
-      .orderBy(orderBy, orderDirection);
+      .orderBy(orderBy, orderDirection)
 
     if (tipo === "entrada") {
-      query.andWhere("entry.type = :type", { type: 1 });
+      query.andWhere("entry.type = :type", { type: 1 })
     } else if (tipo === "despesa") {
-      query.andWhere("entry.type = :type", { type: 0 });
+      query.andWhere("entry.type = :type", { type: 0 })
     }
 
-    const entries = await query.getMany();
+    const entries = await query.getMany()
 
     const moeda = new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
       minimumFractionDigits: 2,
-    });
+    })
 
     const formatDate = (value: Date) =>
       new Intl.DateTimeFormat("pt-BR", {
         dateStyle: "short",
         timeStyle: "short",
-      }).format(value);
+      }).format(value)
 
     const escapeHtml = (value: string) =>
       value.replace(/[&<>'"]/g, (char) => {
@@ -56,13 +56,13 @@ export class LoadDashBoardUseCase {
           ">": "&gt;",
           '"': "&quot;",
           "'": "&#39;",
-        };
-        return map[char] ?? char;
-      });
+        }
+        return map[char] ?? char
+      })
 
     const rows = entries
       .map((entry: any) => {
-        const isIncome = !!entry.type;
+        const isIncome = !!entry.type
         return `
         <tr>
           <td>${formatDate(entry.date)}</td>
@@ -70,12 +70,12 @@ export class LoadDashBoardUseCase {
           <td class="valor ${isIncome ? "entrada" : "despesa"}">${moeda.format(entry.amount)}</td>
           <td>${isIncome ? "Entrada" : "Despesa"}</td>
         </tr>
-      `;
+      `
       })
-      .join("");
+      .join("")
 
     const tableBody =
-      rows || '<tr><td colspan="4">Nenhum lançamento encontrado.</td></tr>';
+      rows || '<tr><td colspan="4">Nenhum lançamento encontrado.</td></tr>'
 
     return `
     <!DOCTYPE html>
@@ -144,6 +144,6 @@ export class LoadDashBoardUseCase {
         </table>
       </body>
     </html>
-  `;
+  `
   }
 }

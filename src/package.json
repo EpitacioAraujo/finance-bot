@@ -7,7 +7,9 @@
     "dev": "tsx watch app/index.ts",
     "build": "swc app -d dist --strip-leading-paths app",
     "start": "node dist/index.js",
-    "migrate": "tsx scripts/runPostgresMigrations.ts"
+    "migrate": "tsx scripts/runPostgresMigrations.ts",
+    "test": "jest --config jest.config.js",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -19,6 +21,7 @@
     "express": "^5.1.0",
     "openai": "^6.8.1",
     "pg": "^8.16.3",
+    "sqlite3": "^5.1.7",
     "tsyringe": "^4.10.0",
     "typeorm": "^0.3.27",
     "ulid": "^3.0.1",
@@ -28,14 +31,18 @@
     "@swc/cli": "^0.7.9",
     "@swc/core": "^1.15.1",
     "@types/express": "^5.0.5",
+    "@types/jest": "^30.0.0",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^24.10.0",
     "@types/pg": "^8.15.6",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
+    "jest": "^30.2.0",
     "prettier": "^3.6.2",
     "reflect-metadata": "^0.2.2",
+    "ts-jest": "^29.4.6",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }

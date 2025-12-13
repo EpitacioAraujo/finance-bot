@@ -1,13 +1,13 @@
-import { Transaction } from "@app/Domain/Entities/Transaction";
-import { Security } from "@app/Domain/Services/Security";
+import { Transaction } from "@app/Domain/Entities/Transaction"
+import { Security } from "@app/Domain/Services/Security"
 
 export class TransactionFactory {
   static create(data: {
-    amount: number;
-    createdAt: Date;
-    entryId: string;
-    transactionGroupDueId: string;
-    userId: string;
+    amount: number
+    createdAt: Date
+    entryId: string
+    transactionGroupDueId: string
+    userId: string
   }): Transaction {
     return {
       id: Security.getUlid(),
@@ -16,6 +16,6 @@ export class TransactionFactory {
       entryId: data.entryId,
       transactionGroupDueId: data.transactionGroupDueId,
       userId: data.userId,
-    };
+    }
   }
 }

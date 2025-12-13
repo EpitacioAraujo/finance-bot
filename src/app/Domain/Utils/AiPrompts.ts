@@ -6,8 +6,8 @@ const commandClassificationPrompt = `
         LIST_TRANSACTIONS: View recent transactions (with filters)
         HELP: Provide guidance or list available commands
         UNKNOWN: The request is not available by us
-    `.trim();
+    `.trim()
 
 export const AiPrompts = {
   COMMAND_CLASSIFICATION: commandClassificationPrompt,
-} as const;
+} as const

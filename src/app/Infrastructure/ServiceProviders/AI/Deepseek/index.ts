@@ -1,17 +1,17 @@
-import "reflect-metadata";
-import { injectable } from "tsyringe";
-import OpenAI, { type OpenAI as TOpenAI } from "openai";
-import { IMessage } from "./types/Message";
+import "reflect-metadata"
+import { injectable } from "tsyringe"
+import OpenAI, { type OpenAI as TOpenAI } from "openai"
+import { IMessage } from "./types/Message"
 
 @injectable()
 export class DeepSeekServiceProvider {
-  private client: OpenAI;
+  private client: OpenAI
 
   constructor() {
     this.client = new OpenAI({
       baseURL: "https://api.deepseek.com",
       apiKey: process.env["DEEPSEEK_API_KEY"] || "",
-    });
+    })
   }
 
   async sendCompletion(
@@ -25,8 +25,8 @@ export class DeepSeekServiceProvider {
       model: "deepseek-chat",
       messages,
       ...config,
-    });
+    })
 
-    return response.choices?.[0]?.message.content || "";
+    return response.choices?.[0]?.message.content || ""
   }
 }

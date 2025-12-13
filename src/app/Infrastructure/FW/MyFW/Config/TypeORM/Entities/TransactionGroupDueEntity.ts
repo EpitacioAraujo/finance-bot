@@ -1,4 +1,4 @@
-import { TransactionGroupDue } from "@app/Domain/Entities/TransactionGroupDue";
+import { TransactionGroupDue } from "@app/Domain/Entities/TransactionGroupDue"
 import {
   Column,
   Entity,
@@ -6,55 +6,55 @@ import {
   ManyToOne,
   PrimaryColumn,
   RelationId,
-} from "typeorm";
-import { TransactionGroupEntity } from "./TransactionGroupEntity";
-import { UserEntity } from "./UserEntity";
+} from "typeorm"
+import { TransactionGroupEntity } from "./TransactionGroupEntity"
+import { UserEntity } from "./UserEntity"
 
 @Entity({
   name: "transaction_group_dues",
 })
 export class TransactionGroupDueEntity implements TransactionGroupDue {
   @PrimaryColumn({ type: "varchar", length: 52 })
-  id!: string;
+  id!: string
 
   @Column({ type: "varchar", length: 255 })
-  name!: string;
+  name!: string
 
   @Column({ type: "varchar", length: 20 })
-  status!: "standby" | "current" | "closed" | "payed";
+  status!: "standby" | "current" | "closed" | "payed"
 
   @Column({ name: "due_date", type: "timestamp" })
-  dueDate!: Date;
+  dueDate!: Date
 
   @Column({ name: "created_at", type: "timestamp" })
-  createdAt!: Date;
+  createdAt!: Date
 
   @ManyToOne(() => TransactionGroupEntity, { nullable: false })
   @JoinColumn({ name: "transaction_group_id" })
-  transactionGroup!: TransactionGroupEntity;
+  transactionGroup!: TransactionGroupEntity
 
   @RelationId(
     (transactionGroupDue: TransactionGroupDueEntity) =>
       transactionGroupDue.transactionGroup
   )
-  transactionGroupId!: string;
+  transactionGroupId!: string
 
   @ManyToOne(() => UserEntity, { nullable: false })
   @JoinColumn({ name: "user_id" })
-  user!: UserEntity;
+  user!: UserEntity
 
   @RelationId(
     (transactionGroupDue: TransactionGroupDueEntity) => transactionGroupDue.user
   )
-  userId!: string;
+  userId!: string
 
   @ManyToOne(() => TransactionGroupDueEntity, { nullable: true })
   @JoinColumn({ name: "next_transaction_group_due_id" })
-  nextTransactionGroupDue?: TransactionGroupDueEntity;
+  nextTransactionGroupDue?: TransactionGroupDueEntity
 
   @RelationId(
     (transactionGroupDue: TransactionGroupDueEntity) =>
       transactionGroupDue.nextTransactionGroupDue
   )
-  nextTransactionGroupDueId?: string;
+  nextTransactionGroupDueId?: string
 }

@@ -1,1 +1,1 @@
-export { AiPrompts } from "./AiPrompts";
+export { AiPrompts } from "./AiPrompts"

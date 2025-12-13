@@ -1,19 +1,21 @@
-import { Transaction } from "@app/Domain/Entities/Transaction";
-import { TransactionRepository } from "@app/Domain/Ports/Repositories/Transaction";
-import { TransactionEntity } from "@app/Infrastructure/FW/MyFW/Config/TypeORM/Entities/TransactionEntity";
-import { DataSource } from "typeorm";
+import { Transaction } from "@app/Domain/Entities/Transaction"
+import { TransactionRepository } from "@app/Domain/Ports/Repositories/TransactionRepository"
+import { TransactionEntity } from "@app/Infrastructure/FW/MyFW/Config/TypeORM/Entities/TransactionEntity"
+import { DataSource, Repository } from "typeorm"
 
-export class TransactionRepositoryFactory {
-  constructor(private appDataSource: DataSource) {}
+export class TypeOrmTransactionRepository implements TransactionRepository {
+  private repository: Repository<TransactionEntity>
 
-  public make(): TransactionRepository {
-    const repository = this.appDataSource.getRepository(TransactionEntity);
+  constructor(appDataSource: DataSource) {
+    this.repository = appDataSource.getRepository(TransactionEntity)
+  }
 
-    return {
-      register: async (data: Transaction) => {
-        await repository.save(data);
-        return true;
-      },
-    };
+  public async register(data: Transaction) {
+    await this.repository.save(data)
+    return true
+  }
+
+  public async getAll(): Promise<Transaction[]> {
+    return await this.repository.find()
   }
 }
