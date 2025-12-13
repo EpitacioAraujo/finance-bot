@@ -21,10 +21,7 @@ module.exports = {
     "!app/**/*.spec.ts",
     "!app/__tests__/**",
   ],
-  coveragePathIgnorePatterns: [
-    "/node_modules/",
-    "/.jest/",
-  ],
+  coveragePathIgnorePatterns: ["/node_modules/", "/.jest/"],
   coverageReporters: ["text", "lcov", "html"],
   coverageDirectory: "<rootDir>/coverage",
 }
