@@ -20,7 +20,7 @@ import { TypeOrmTransactionGroupDueRepository } from "@app/Infrastructure/Adapte
 // Adapters - providers
 import { AssemblyAIServiceProvider } from "@app/Infrastructure/ServiceProviders/AI/AssemblyAI"
 import { DeepSeekServiceProvider } from "@app/Infrastructure/ServiceProviders/AI/Deepseek"
-import { AiProvider } from "@app/Infrastructure/Adapters/Provider/AiProvider"
+import { AiProvider } from "@app/Infrastructure/Adapters/Provider/AiProvider/AiProvider"
 
 // Use Cases
 import { ProcessCommandUseCase } from "@app/Application/UseCases/ProcessComand"
@@ -41,43 +41,28 @@ export async function bootstrapContainer(
   ).make()
 
   // Register DataSource by its class type so tsyringe can inject it
-  container.registerInstance("DataSource", appDataSource)
-  container.registerInstance(DataSource, appDataSource)
+  container.registerInstance<DataSource>("DataSource", appDataSource)
 
   // Register repositories
-  container.register<UserRepository>("UserRepository", TypeOrmUserRepository)
-  container.register<EntryRepository>("EntryRepository", TypeOrmEntryRepository)
-  container.register<TransactionRepository>(
-    "TransactionRepository",
-    TypeOrmTransactionRepository
-  )
-  container.register<TransactionGroupRepository>(
-    "TransactionGroupRepository",
+  container.register(typeof UserRepository, TypeOrmUserRepository)
+  container.register(typeof EntryRepository, TypeOrmEntryRepository)
+  container.register(typeof TransactionRepository, TypeOrmTransactionRepository)
+  container.register(
+    typeof TransactionGroupRepository,
     TypeOrmTransactionGroupRepository
   )
-  container.register<TransactionGroupDueRepository>(
-    "TransactionGroupDueRepository",
+  container.register(
+    typeof TransactionGroupDueRepository,
     TypeOrmTransactionGroupDueRepository
   )
-
   container.registerSingleton(AssemblyAIServiceProvider)
   container.registerSingleton(DeepSeekServiceProvider)
   container.registerSingleton(AiProvider)
-
   // Register interface to implementation mapping
-  container.register<AIProviderPort>("AIProviderPort", {
-    useClass: AiProvider,
-  })
+  container.register(typeof AIProviderPort, AiProvider)
 
   // Register application use cases with factory
-  container.register(ProcessCommandUseCase, {
-    useFactory: (c) => {
-      return new ProcessCommandUseCase(
-        c.resolve<EntryRepository>("EntryRepository"),
-        c.resolve<AIProviderPort>("AIProviderPort")
-      )
-    },
-  })
+  container.registerSingleton(ProcessCommandUseCase)
 
   // Register controllers
   container.registerSingleton(RootController)

@@ -8,11 +8,6 @@ export class AppDataSourceFactory {
 
   public async make(): Promise<DataSource> {
     console.log("Initializing database connection...")
-    console.log(`Database type: ${this.env.dbType}`)
-    console.log(`Database host: ${this.env.dbHost}`)
-    console.log(`Database port: ${this.env.dbPort}`)
-    console.log(`Database name: ${this.env.dbName}`)
-    console.log(`Database user: ${this.env.dbUser}`)
 
     const sqliteConnection = {
       type: this.env.dbType as any,
@@ -27,6 +22,10 @@ export class AppDataSourceFactory {
       password: this.env.dbPassword,
       database: this.env.dbName,
     }
+
+    console.log(
+      this.env.dbType === "sqlite" ? sqliteConnection : postgresConnection
+    )
 
     const dataSource = new DataSource({
       ...(this.env.dbType === "sqlite" ? sqliteConnection : postgresConnection),

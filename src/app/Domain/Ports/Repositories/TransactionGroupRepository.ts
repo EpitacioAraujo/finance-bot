@@ -1,5 +1,5 @@
 import { TransactionGroup } from "@app/Domain/Entities/TransactionGroup"
 
-export interface TransactionGroupRepository {
-  register(data: TransactionGroup): Promise<boolean>
+export abstract class TransactionGroupRepository {
+  abstract register(data: TransactionGroup): Promise<boolean>
 }

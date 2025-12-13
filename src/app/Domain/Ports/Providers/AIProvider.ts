@@ -1,4 +1,6 @@
-export interface AIProviderPort {
-  sendCompletion(messages: { role: string; content: string }[]): Promise<string>
-  audioTranscription(audioPath: string): Promise<string>
+export abstract class AIProviderPort {
+  abstract sendCompletion(
+    messages: { role: string; content: string }[]
+  ): Promise<string>
+  abstract audioTranscription(audioPath: string): Promise<string>
 }

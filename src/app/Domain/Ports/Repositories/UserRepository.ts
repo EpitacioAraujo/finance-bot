@@ -1,6 +1,6 @@
 import { User } from "@app/Domain/Entities/User"
 
-export interface UserRepository {
-  register(data: User): Promise<boolean>
-  getAll(): Promise<User[]>
+export abstract class UserRepository {
+  abstract register(data: User): Promise<boolean>
+  abstract getAll(): Promise<User[]>
 }

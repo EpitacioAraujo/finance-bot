@@ -7,6 +7,7 @@ interface IPayload {
   ordem: string
   tipo: string
 }
+
 export class LoadDashBoardUseCase {
   constructor(private entryRepository: Repository<Entry>) {}
 

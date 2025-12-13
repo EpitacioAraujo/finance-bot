@@ -3,6 +3,8 @@
  * Type-safe access to process.env
  */
 
+import type { App } from "@MyFW/index"
+
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
@@ -31,6 +33,12 @@ declare global {
       TRANSCRIPTION_PROVIDER?: "assemblyai" | "whisper" | "deepgram"
     }
   }
+
+  /**
+   * Test Application Instance
+   * Available globally during test execution
+   */
+  var testAppInstance: App | undefined
 }
 
 export {}

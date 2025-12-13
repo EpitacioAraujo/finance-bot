@@ -18,7 +18,7 @@ beforeAll(async () => {
     await appInstance.initialize()
   }
   // Make the app instance available globally for tests
-  ;(global as any).testAppInstance = appInstance
+  global.testAppInstance = appInstance
 })
 
 afterAll(async () => {
