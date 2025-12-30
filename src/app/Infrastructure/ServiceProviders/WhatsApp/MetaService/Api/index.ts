@@ -4,6 +4,7 @@ import { Axios } from "axios"
 
 import { GetAudioUrl } from "./GetAudioUrl"
 import { DownloadAudio } from "./DownloadAudio"
+import { SendTextMessage } from "./SendTextMessage"
 
 @injectable()
 export class WhatsAppMetaAPI {
@@ -24,5 +25,9 @@ export class WhatsAppMetaAPI {
 
   async audioDownload(mediaUrl: string): Promise<string> {
     return new DownloadAudio(this.client).execute(mediaUrl)
+  }
+
+  async sendTextMessage(to: string, body: string) {
+    return new SendTextMessage(this.client).execute({ to, body })
   }
 }
