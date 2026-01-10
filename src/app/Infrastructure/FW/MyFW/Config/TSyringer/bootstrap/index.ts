@@ -26,10 +26,11 @@ import { AiProvider } from "@app/Infrastructure/Adapters/Provider/AiProvider/AiP
 import { ProcessCommandUseCase } from "@app/Application/UseCases/ProcessComand"
 
 // Controllers
-import { RootController } from "../../Http/Controllers/Root"
+import { RootController } from "../../../Http/Controllers/Root"
 import { Env } from "@app/Domain/Entities/Env"
-import { AppDataSourceFactory } from "../TypeORM/data-source"
+import { AppDataSourceFactory } from "../../TypeORM/data-source"
 import { DataSource } from "typeorm"
+import { bootstrapControllers } from "./bootstrap-controllers"
 
 export async function bootstrapContainer(
   container: DependencyContainer
@@ -65,5 +66,5 @@ export async function bootstrapContainer(
   container.registerSingleton(ProcessCommandUseCase)
 
   // Register controllers
-  container.registerSingleton(RootController)
+  await bootstrapControllers(container)
 }
