@@ -1,0 +1,61 @@
+import { Module } from '@nestjs/common';
+import { Provider } from '@nestjs/common';
+
+// Adapters/Implementations
+import { TypeOrmProductRepository } from '@/infrastructure/adapters/repositories/TypeOrmProductRepository';
+import { TypeOrmUserRepository } from '@/infrastructure/adapters/repositories/TypeOrmUserRepository';
+import { TypeOrmSessionRepository } from '@/infrastructure/adapters/repositories/TypeOrmSessionRepository';
+
+// Database Schemas
+import {
+  ProductSchema,
+  UserSchema,
+  SessionSchema,
+} from '@/infrastructure/config/typeorm/schemas';
+import { createRepositoryProvider } from './repositoryProviderFactory';
+
+// Token constants for dependency injection
+export const CART_REPOSITORY_TOKEN = 'CartRepository';
+export const PRODUCT_REPOSITORY_TOKEN = 'ProductRepository';
+export const ORDER_REPOSITORY_TOKEN = 'OrderRepository';
+export const CUSTOMER_REPOSITORY_TOKEN = 'CustomerRepository';
+export const USER_REPOSITORY_TOKEN = 'UserRepository';
+export const STOCK_REPOSITORY_TOKEN = 'StockRepository';
+export const SESSION_REPOSITORY_TOKEN = 'SessionRepository';
+
+/**
+ * Repository Providers Factory
+ * Centraliza todas as factories de repositories
+ *
+ * Este módulo fornece os providers para todos os repositórios da aplicação,
+ * implementados com TypeORM. Cada repositório é uma factory que injeta
+ * o Repository<T> do TypeORM necessário.
+ *
+ * ✅ Usa o DataSource global - não precisa de TypeOrmModule.forFeature()
+ * ✅ Para adicionar um novo repositório, apenas adicione um objeto à lista
+ *
+ * Os schemas já estão carregados no TypeOrmModule.forRoot() do AppModule
+ */
+const repositoryProviders: Provider[] = [
+  createRepositoryProvider({
+    token: USER_REPOSITORY_TOKEN,
+    schema: UserSchema,
+    repositoryClass: TypeOrmUserRepository,
+  }),
+  createRepositoryProvider({
+    token: PRODUCT_REPOSITORY_TOKEN,
+    schema: ProductSchema,
+    repositoryClass: TypeOrmProductRepository,
+  }),
+  createRepositoryProvider({
+    token: SESSION_REPOSITORY_TOKEN,
+    schema: SessionSchema,
+    repositoryClass: TypeOrmSessionRepository,
+  }),
+];
+
+@Module({
+  providers: repositoryProviders,
+  exports: repositoryProviders,
+})
+export class RepositoriesModule {}
