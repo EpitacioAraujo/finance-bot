@@ -26,8 +26,4 @@ export class NestJwtTokenService implements TokenService {
       throw new BusinessError('Invalid token', 401);
     }
   }
-
-  async revokeToken(token: string): Promise<void> {
-    // TODO: Implementar revogação com Redis ou banco de dados
-  }
 }
