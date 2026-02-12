@@ -1,19 +1,15 @@
 import { UserRepository } from '@/domain/ports/repositories/UserRepository';
 import { PasswordService } from '@/domain/ports/services/PasswordService';
-import { TokenService } from '@/domain/ports/services/TokenService';
-import { SessionRepository } from '@/domain/ports/repositories/SessionRepository';
 import { InputDTO } from './input.dto';
 import { OutputDTO } from './output.dto';
 import { BusinessError } from '@/domain/errors/BusinessError';
-import { Session } from '@/domain/entities/auth/Session';
-import { JwtPayload } from '@/domain/entities/auth/JwtPayload';
+import { CreateNewSessionFacade } from '@/application/facades/create-new-session';
 
 export class LoginUseCase {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly sessionRepository: SessionRepository,
-    private readonly tokenService: TokenService,
     private readonly passwordService: PasswordService,
+    private readonly createNewSessionFacade: CreateNewSessionFacade,
   ) {}
 
   async execute(input: InputDTO): Promise<OutputDTO> {
@@ -35,27 +31,8 @@ export class LoginUseCase {
       throw new BusinessError('Invalid credentials', 401);
     }
 
-    // 1. Cria a sessão no banco ANTES de gerar o JWT
-    const session = new Session({
-      userId: user.id,
-      user,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
-      // Opcional: capturar IP e UserAgent do request
-      // ipAddress: request.ip,
-      // userAgent: request.headers['user-agent'],
-    });
+    const session = await this.createNewSessionFacade.execute({ user });
 
-    await this.sessionRepository.store(session);
-
-    // 2. Gera os tokens JWT com o sessionId
-    const payload = new JwtPayload({ sessionId: session.id });
-    const accessToken = await this.tokenService.generateAccessToken(payload);
-    const refreshToken = await this.tokenService.generateRefreshToken(payload);
-
-    // Return the tokens
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return session;
   }
 }

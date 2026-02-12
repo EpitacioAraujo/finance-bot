@@ -10,12 +10,11 @@ import { LogoutUseCase } from '@/application/use-cases/auth/logout/index';
 
 // Import repositories and services modules to use their exports
 import {
-  RepositoriesModule,
   USER_REPOSITORY_TOKEN,
   SESSION_REPOSITORY_TOKEN,
 } from '../repositories/repositories.module';
+
 import {
-  ServicesModule,
   PASSWORD_SERVICE_TOKEN,
   TOKEN_SERVICE_TOKEN,
 } from '../services/services.module';
@@ -48,13 +47,11 @@ const useCaseProviders: Provider[] = [
     useFactory: (
       userRepository: any,
       sessionRepository: any,
-      tokenService: any,
       passwordService: any,
     ) =>
       new LoginUseCase(
         userRepository,
         sessionRepository,
-        tokenService,
         passwordService,
       ),
     inject: [
@@ -91,7 +88,6 @@ const useCaseProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [RepositoriesModule, ServicesModule],
   providers: useCaseProviders,
   exports: useCaseProviders,
 })

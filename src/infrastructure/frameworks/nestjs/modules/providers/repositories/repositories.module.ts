@@ -2,13 +2,11 @@ import { Module } from '@nestjs/common';
 import { Provider } from '@nestjs/common';
 
 // Adapters/Implementations
-import { TypeOrmProductRepository } from '@/infrastructure/adapters/repositories/TypeOrmProductRepository';
 import { TypeOrmUserRepository } from '@/infrastructure/adapters/repositories/TypeOrmUserRepository';
 import { TypeOrmSessionRepository } from '@/infrastructure/adapters/repositories/TypeOrmSessionRepository';
 
 // Database Schemas
 import {
-  ProductSchema,
   UserSchema,
   SessionSchema,
 } from '@/infrastructure/config/typeorm/schemas';
@@ -41,11 +39,6 @@ const repositoryProviders: Provider[] = [
     token: USER_REPOSITORY_TOKEN,
     schema: UserSchema,
     repositoryClass: TypeOrmUserRepository,
-  }),
-  createRepositoryProvider({
-    token: PRODUCT_REPOSITORY_TOKEN,
-    schema: ProductSchema,
-    repositoryClass: TypeOrmProductRepository,
   }),
   createRepositoryProvider({
     token: SESSION_REPOSITORY_TOKEN,

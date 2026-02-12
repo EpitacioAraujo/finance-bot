@@ -4,6 +4,7 @@ import { Global, Module } from '@nestjs/common';
 import { RepositoriesModule } from './repositories/repositories.module';
 import { ServicesModule } from './services/services.module';
 import { UseCasesModule } from './use-cases/use-cases.module';
+import { FacadesModule } from './facades/facades.module';
 
 /**
  * Main Providers Module (Global)
@@ -27,7 +28,7 @@ import { UseCasesModule } from './use-cases/use-cases.module';
  */
 @Global()
 @Module({
-  imports: [RepositoriesModule, ServicesModule, UseCasesModule],
-  exports: [RepositoriesModule, ServicesModule, UseCasesModule],
+  imports: [RepositoriesModule, ServicesModule, FacadesModule, UseCasesModule],
+  exports: [RepositoriesModule, ServicesModule, FacadesModule, UseCasesModule],
 })
 export class ProvidersModule {}
