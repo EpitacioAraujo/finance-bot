@@ -7,6 +7,7 @@ import { typeOrmConfig } from '@/infrastructure/frameworks/nestjs/config/typeorm
 import { ResponseInterceptor } from '@/infrastructure/frameworks/nestjs/interceptors/response.interceptor';
 
 import { AuthModule } from '@/infrastructure/frameworks/nestjs/modules/auth/auth.module';
+import { TransactionsModule } from '@/infrastructure/frameworks/nestjs/modules/transactions/transactions.module';
 import { ProvidersModule } from '@/infrastructure/frameworks/nestjs/modules/providers';
 import { GlobalExceptionFilter } from './filters/global-exception-filter';
 
@@ -19,6 +20,7 @@ import { GlobalExceptionFilter } from './filters/global-exception-filter';
     TypeOrmModule.forRoot(typeOrmConfig),
     ProvidersModule,
     AuthModule,
+    TransactionsModule,
   ],
   providers: [
     {

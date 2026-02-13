@@ -11,6 +11,7 @@ export {
   ORDER_REPOSITORY_TOKEN,
   CUSTOMER_REPOSITORY_TOKEN,
   STOCK_REPOSITORY_TOKEN,
+  TRANSACTION_REPOSITORY_TOKEN,
 } from './repositories/repositories.module';
 export {
   ServicesModule,

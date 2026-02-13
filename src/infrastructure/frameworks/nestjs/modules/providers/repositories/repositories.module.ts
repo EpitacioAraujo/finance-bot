@@ -4,11 +4,13 @@ import { Provider } from '@nestjs/common';
 // Adapters/Implementations
 import { TypeOrmUserRepository } from '@/infrastructure/adapters/repositories/TypeOrmUserRepository';
 import { TypeOrmSessionRepository } from '@/infrastructure/adapters/repositories/TypeOrmSessionRepository';
+import { TypeOrmTransactionRepository } from '@/infrastructure/adapters/repositories/TypeOrmTransactionRepository';
 
 // Database Schemas
 import {
   UserSchema,
   SessionSchema,
+  TransactionSchema,
 } from '@/infrastructure/config/typeorm/schemas';
 import { createRepositoryProvider } from './repositoryProviderFactory';
 
@@ -20,6 +22,7 @@ export const CUSTOMER_REPOSITORY_TOKEN = 'CustomerRepository';
 export const USER_REPOSITORY_TOKEN = 'UserRepository';
 export const STOCK_REPOSITORY_TOKEN = 'StockRepository';
 export const SESSION_REPOSITORY_TOKEN = 'SessionRepository';
+export const TRANSACTION_REPOSITORY_TOKEN = 'TransactionRepository';
 
 /**
  * Repository Providers Factory
@@ -44,6 +47,11 @@ const repositoryProviders: Provider[] = [
     token: SESSION_REPOSITORY_TOKEN,
     schema: SessionSchema,
     repositoryClass: TypeOrmSessionRepository,
+  }),
+  createRepositoryProvider({
+    token: TRANSACTION_REPOSITORY_TOKEN,
+    schema: TransactionSchema,
+    repositoryClass: TypeOrmTransactionRepository,
   }),
 ];
 
