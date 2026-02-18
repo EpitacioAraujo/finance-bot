@@ -4,6 +4,7 @@ import { RegisterController } from './controllers/register-controller/register.c
 import { LoginController } from './controllers/login-controller/login.controller';
 import { LogoutController } from './controllers/logout-controller/logout.controller';
 import { RefreshController } from './controllers/refresh-controller/refresh.controller';
+import { MeController } from './controllers/me-controller/me.controller';
 import { UseCasesModule } from '../providers/use-cases/use-cases.module';
 
 /**
@@ -13,7 +14,13 @@ import { UseCasesModule } from '../providers/use-cases/use-cases.module';
  */
 @Module({
   imports: [UseCasesModule],
-  controllers: [RegisterController, LoginController, LogoutController, RefreshController],
+  controllers: [
+    RegisterController,
+    LoginController,
+    LogoutController,
+    RefreshController,
+    MeController,
+  ],
   providers: [JwtAuthGuard],
   exports: [JwtAuthGuard],
 })
