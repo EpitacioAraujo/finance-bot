@@ -6,6 +6,7 @@ import { LOGIN_USE_CASE_TOKEN } from '@/infrastructure/frameworks/nestjs/modules
 import { LoginUseCase } from '@/application/use-cases/auth/login';
 import { InputDto } from './input.dto';
 import { Env } from '@/domain/entities/common/env';
+import { TokenPolicy } from '@/domain/entities/auth/TokenPolicy';
 
 @Controller('auth/login')
 export class LoginController {
@@ -38,13 +39,13 @@ export class LoginController {
       httpOnly: true,
       secure: isProduction,
       sameSite,
-      maxAge: 15 * 60 * 1000,
+      maxAge: TokenPolicy.accessTokenMaxAgeMs(),
     });
     res.cookie('refresh_token', result.refreshToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+      maxAge: TokenPolicy.refreshTokenMaxAgeMs(),
     });
 
     return { ok: true };

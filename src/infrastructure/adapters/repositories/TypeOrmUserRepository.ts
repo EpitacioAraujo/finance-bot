@@ -54,6 +54,8 @@ export class TypeOrmUserRepository implements UserRepository {
       name: schema.name || '',
       email: schema.email,
       passwordHash: schema.passwordHash,
+      role: schema.role,
+      isActive: schema.isActive,
       tokenVersion: schema.tokenVersion,
       createdAt: schema.createdAt,
       updatedAt: schema.updatedAt,

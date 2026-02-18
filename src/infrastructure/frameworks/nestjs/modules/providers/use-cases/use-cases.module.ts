@@ -8,6 +8,7 @@ import { LoginUseCase } from '@/application/use-cases/auth/login/index';
 import { IsAuthenticatedUseCase } from '@/application/use-cases/auth/is-authenticated/index';
 import { LogoutUseCase } from '@/application/use-cases/auth/logout/index';
 import { RefreshTokenUseCase } from '@/application/use-cases/auth/refresh-token/index';
+import { CreateAdminUseCase } from '@/application/use-cases/auth/create-admin/index';
 
 // Import repositories and services modules to use their exports
 import {
@@ -28,6 +29,7 @@ export const LOGIN_USE_CASE_TOKEN = 'LoginUseCase';
 export const IS_AUTHENTICATED_USE_CASE_TOKEN = 'IsAuthenticatedUseCase';
 export const LOGOUT_USE_CASE_TOKEN = 'LogoutUseCase';
 export const REFRESH_TOKEN_USE_CASE_TOKEN = 'RefreshTokenUseCase';
+export const CREATE_ADMIN_USE_CASE_TOKEN = 'CreateAdminUseCase';
 
 /**
  * Use Case Providers Factory
@@ -103,6 +105,12 @@ const useCaseProviders: Provider[] = [
       TOKEN_SERVICE_TOKEN,
       REFRESH_TOKEN_SERVICE_TOKEN,
     ],
+  },
+  {
+    provide: CREATE_ADMIN_USE_CASE_TOKEN,
+    useFactory: (userRepository: any, passwordService: any) =>
+      new CreateAdminUseCase(userRepository, passwordService),
+    inject: [USER_REPOSITORY_TOKEN, PASSWORD_SERVICE_TOKEN],
   },
 ];
 

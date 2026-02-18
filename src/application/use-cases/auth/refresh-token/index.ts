@@ -5,6 +5,7 @@ import { SessionRepository } from '@/domain/ports/repositories/SessionRepository
 import { UserRepository } from '@/domain/ports/repositories/UserRepository';
 import { RefreshTokenService } from '@/domain/ports/services/RefreshTokenService';
 import { TokenService } from '@/domain/ports/services/TokenService';
+import { TokenPolicy } from '@/domain/entities/auth/TokenPolicy';
 import { InputDTO } from './input.dto';
 import { OutputDTO } from './output.dto';
 
@@ -54,7 +55,7 @@ export class RefreshTokenUseCase {
             // 4. Rotaciona o refresh token na sessão existente
             const newRefreshToken = this.refreshTokenService.generate();
             session.refreshTokenHash = this.refreshTokenService.hash(newRefreshToken);
-            session.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+            session.expiresAt = TokenPolicy.refreshTokenExpiresAt();
             session.ipAddress = ipAddress ?? session.ipAddress;
             session.userAgent = userAgent ?? session.userAgent;
 

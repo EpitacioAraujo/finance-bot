@@ -21,6 +21,7 @@ export {
 export {
   UseCasesModule,
   REGISTER_USE_CASE_TOKEN,
+  CREATE_ADMIN_USE_CASE_TOKEN,
   LOGIN_USE_CASE_TOKEN,
   LOGOUT_USE_CASE_TOKEN,
 } from './use-cases/use-cases.module';

@@ -4,6 +4,7 @@ import { Session } from '@/domain/entities/auth/Session';
 import { SessionRepository } from '@/domain/ports/repositories/SessionRepository';
 import { RefreshTokenService } from '@/domain/ports/services/RefreshTokenService';
 import { TokenService } from '@/domain/ports/services/TokenService';
+import { TokenPolicy } from '@/domain/entities/auth/TokenPolicy';
 import { InputDTO } from "./input.dto";
 import { OutputDTO } from "./output.dto";
 
@@ -29,7 +30,7 @@ export class CreateNewSessionFacade {
             tokenVersion: user.tokenVersion,
             ipAddress,
             userAgent,
-            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 dias
+            expiresAt: TokenPolicy.refreshTokenExpiresAt(),
         });
         
         await this.sessionRepository.store(session);

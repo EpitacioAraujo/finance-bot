@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Provider } from '@nestjs/common';
 import { Env } from '@/domain/entities/common/env';
+import { TokenPolicy } from '@/domain/entities/auth/TokenPolicy';
 
 // Adapters/Implementations
 import { BcryptPasswordService } from '@/infrastructure/adapters/external-services/BcryptPasswordService';
@@ -45,7 +46,7 @@ const serviceProviders: Provider[] = [
   imports: [
     JwtModule.register({
       secret: Env.getInstance().JWT_SECRET || 'your-secret-key',
-      signOptions: { expiresIn: '15m' },
+      signOptions: { expiresIn: `${TokenPolicy.accessTokenTtlMs}ms` },
     }),
   ],
   providers: serviceProviders,

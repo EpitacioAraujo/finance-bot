@@ -2,6 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { TokenService } from '@/domain/ports/services/TokenService';
 import { JwtPayload } from '@/domain/entities/auth/JwtPayload';
 import { BusinessError } from '@/domain/errors/BusinessError';
+import { TokenPolicy } from '@/domain/entities/auth/TokenPolicy';
 
 export class NestJwtTokenService implements TokenService {
   constructor(private jwtService: JwtService) {}
@@ -14,7 +15,9 @@ export class NestJwtTokenService implements TokenService {
       tv: payload.tv,
       jti: payload.jti,
     };
-    return this.jwtService.sign(plainPayload, { expiresIn: '15m' });
+    return this.jwtService.sign(plainPayload, {
+      expiresIn: `${TokenPolicy.accessTokenTtlMs}ms`,
+    });
   }
 
   async validateAccessToken(token: string): Promise<JwtPayload> {
