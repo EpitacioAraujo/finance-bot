@@ -5,6 +5,7 @@ export class User {
   name: string;
   email: string;
   passwordHash: string;
+  tokenVersion: number;
   createdAt: Date;
   updatedAt: Date;
 
@@ -13,6 +14,7 @@ export class User {
     name: string;
     email: string;
     passwordHash: string;
+    tokenVersion?: number;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -20,6 +22,7 @@ export class User {
     this.name = props.name;
     this.email = props.email;
     this.passwordHash = props.passwordHash;
+    this.tokenVersion = props.tokenVersion ?? 1;
     this.createdAt = props.createdAt || new Date();
     this.updatedAt = props.updatedAt || new Date();
   }

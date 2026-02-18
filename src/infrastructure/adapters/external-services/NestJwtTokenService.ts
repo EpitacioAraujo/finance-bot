@@ -7,21 +7,32 @@ export class NestJwtTokenService implements TokenService {
   constructor(private jwtService: JwtService) {}
 
   async generateAccessToken(payload: JwtPayload): Promise<string> {
-    // Converte a instância da classe para objeto plain
-    const plainPayload = { sessionId: payload.sessionId };
+    const plainPayload = {
+      sub: payload.sub,
+      sid: payload.sid,
+      did: payload.did,
+      tv: payload.tv,
+      jti: payload.jti,
+    };
     return this.jwtService.sign(plainPayload, { expiresIn: '15m' });
   }
 
-  async generateRefreshToken(payload: JwtPayload): Promise<string> {
-    // Converte a instância da classe para objeto plain
-    const plainPayload = { sessionId: payload.sessionId };
-    return this.jwtService.sign(plainPayload, { expiresIn: '7d' });
-  }
-
-  async validateToken(token: string): Promise<JwtPayload> {
+  async validateAccessToken(token: string): Promise<JwtPayload> {
     try {
-      const decoded = this.jwtService.verify<{ sessionId: string }>(token);
-      return new JwtPayload({ sessionId: decoded.sessionId });
+      const decoded = this.jwtService.verify<{
+        sub: string;
+        sid: string;
+        did: string;
+        tv: number;
+        jti: string;
+      }>(token);
+      return new JwtPayload({
+        sub: decoded.sub,
+        sid: decoded.sid,
+        did: decoded.did,
+        tv: decoded.tv,
+        jti: decoded.jti,
+      });
     } catch {
       throw new BusinessError('Invalid token', 401);
     }

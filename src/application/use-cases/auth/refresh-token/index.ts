@@ -1,50 +1,79 @@
-import { CreateNewSessionFacade } from "@/application/facades/create-new-session";
-import { BusinessError } from "@/domain/errors/BusinessError";
-import { SessionRepository } from "@/domain/ports/repositories/SessionRepository";
-import { UserRepository } from "@/domain/ports/repositories/UserRepository";
-import { TokenService } from "@/domain/ports/services/TokenService";
-import { InputDTO } from "./input.dto";
-import { OutputDTO } from "./output.dto";
+import { ulid } from 'ulid';
+import { BusinessError } from '@/domain/errors/BusinessError';
+import { JwtPayload } from '@/domain/entities/auth/JwtPayload';
+import { SessionRepository } from '@/domain/ports/repositories/SessionRepository';
+import { UserRepository } from '@/domain/ports/repositories/UserRepository';
+import { RefreshTokenService } from '@/domain/ports/services/RefreshTokenService';
+import { TokenService } from '@/domain/ports/services/TokenService';
+import { InputDTO } from './input.dto';
+import { OutputDTO } from './output.dto';
 
 export class RefreshTokenUseCase {
     constructor(
         private readonly sessionRepository: SessionRepository,
         private readonly userRepository: UserRepository,
         private readonly tokenService: TokenService,
-        private readonly createNewSessionFacade: CreateNewSessionFacade,
+        private readonly refreshTokenService: RefreshTokenService,
     ) {}
 
     async execute(input: InputDTO): Promise<OutputDTO> {
-        const { refreshToken, authenticatedUser } = input;
+        const { refreshToken, ipAddress, userAgent } = input;
         
         try {
+            if (!refreshToken) {
+                throw new BusinessError('Refresh token ausente', 401);
+            }
 
-            // 1. Valida o JWT e extrai o sessionId
-            const token_payload = await this.tokenService.validateToken(refreshToken);
-    
-            // 2. Busca a sessão no banco
-            const session = await this.sessionRepository.get(token_payload.sessionId);
-    
-            // 3. Verifica se a sessão existe, está ativa e pertence ao usuário autenticado
-            if (!session || !session.isActive() || session.userId !== authenticatedUser.id) {
+            const refreshTokenHash = this.refreshTokenService.hash(refreshToken);
+
+            // 1. Busca a sessão pelo hash do refresh token
+            const sessions = await this.sessionRepository.search({
+                refreshTokenHash,
+            });
+
+            const session = sessions[0];
+
+            // 2. Verifica se a sessão existe e está ativa
+            if (!session || !session.isActive()) {
                 throw new BusinessError('Sessão inválida ou expirada', 401);
             }
 
-            // 4. Busca o usuário
+            // 3. Busca o usuário
             const user = await this.userRepository.get(session.userId);
     
             if (!user) {
                 throw new BusinessError('Usuário não encontrado', 404);
             }
-    
-            // 5. Revogar sessão para refletir a renovação do token
-            session.revoke();
 
-            this.sessionRepository.store(session);
+            if (session.tokenVersion !== user.tokenVersion) {
+                session.revoke();
+                await this.sessionRepository.store(session);
+                throw new BusinessError('Sessão inválida ou expirada', 401);
+            }
 
-            const new_session = await this.createNewSessionFacade.execute({ user });
+            // 4. Rotaciona o refresh token na sessão existente
+            const newRefreshToken = this.refreshTokenService.generate();
+            session.refreshTokenHash = this.refreshTokenService.hash(newRefreshToken);
+            session.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+            session.ipAddress = ipAddress ?? session.ipAddress;
+            session.userAgent = userAgent ?? session.userAgent;
 
-            return new_session;
+            await this.sessionRepository.store(session);
+
+            const payload = new JwtPayload({
+                sub: user.id,
+                sid: session.id,
+                did: session.deviceId,
+                tv: user.tokenVersion,
+                jti: ulid(),
+            });
+
+            const accessToken = await this.tokenService.generateAccessToken(payload);
+
+            return {
+                accessToken,
+                refreshToken: newRefreshToken,
+            };
         } catch (error) {
             if (error instanceof BusinessError) {
             throw error;

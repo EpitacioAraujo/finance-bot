@@ -5,6 +5,9 @@ export class Session {
   id: string;
   userId: string;
   user?: User;
+  deviceId: string;
+  refreshTokenHash: string;
+  tokenVersion: number;
   ipAddress?: string;
   userAgent?: string;
   createdAt: Date;
@@ -15,6 +18,9 @@ export class Session {
     id?: string;
     userId: string;
     user?: User;
+    deviceId: string;
+    refreshTokenHash: string;
+    tokenVersion: number;
     ipAddress?: string;
     userAgent?: string;
     createdAt?: Date;
@@ -24,6 +30,9 @@ export class Session {
     this.id = props.id || ulid();
     this.userId = props.userId;
     this.user = props.user;
+    this.deviceId = props.deviceId;
+    this.refreshTokenHash = props.refreshTokenHash;
+    this.tokenVersion = props.tokenVersion;
     this.ipAddress = props.ipAddress;
     this.userAgent = props.userAgent;
     this.createdAt = props.createdAt || new Date();

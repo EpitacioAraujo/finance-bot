@@ -3,6 +3,7 @@ import { JwtAuthGuard } from '@/infrastructure/frameworks/nestjs/guards/jwt-auth
 import { RegisterController } from './controllers/register-controller/register.controller';
 import { LoginController } from './controllers/login-controller/login.controller';
 import { LogoutController } from './controllers/logout-controller/logout.controller';
+import { RefreshController } from './controllers/refresh-controller/refresh.controller';
 import { UseCasesModule } from '../providers/use-cases/use-cases.module';
 
 /**
@@ -12,7 +13,7 @@ import { UseCasesModule } from '../providers/use-cases/use-cases.module';
  */
 @Module({
   imports: [UseCasesModule],
-  controllers: [RegisterController, LoginController, LogoutController],
+  controllers: [RegisterController, LoginController, LogoutController, RefreshController],
   providers: [JwtAuthGuard],
   exports: [JwtAuthGuard],
 })

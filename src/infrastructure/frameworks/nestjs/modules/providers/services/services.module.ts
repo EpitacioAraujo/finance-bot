@@ -5,10 +5,12 @@ import { Provider } from '@nestjs/common';
 // Adapters/Implementations
 import { BcryptPasswordService } from '@/infrastructure/adapters/external-services/BcryptPasswordService';
 import { NestJwtTokenService } from '@/infrastructure/adapters/external-services/NestJwtTokenService';
+import { NodeCryptoRefreshTokenService } from '@/infrastructure/adapters/external-services/NodeCryptoRefreshTokenService';
 
 // Token constants for dependency injection
 export const PASSWORD_SERVICE_TOKEN = 'PasswordService';
 export const TOKEN_SERVICE_TOKEN = 'TokenService';
+export const REFRESH_TOKEN_SERVICE_TOKEN = 'RefreshTokenService';
 
 /**
  * Service Providers Factory
@@ -31,6 +33,10 @@ const serviceProviders: Provider[] = [
       return new NestJwtTokenService(jwtService);
     },
     inject: [JwtService],
+  },
+  {
+    provide: REFRESH_TOKEN_SERVICE_TOKEN,
+    useClass: NodeCryptoRefreshTokenService,
   },
 ];
 

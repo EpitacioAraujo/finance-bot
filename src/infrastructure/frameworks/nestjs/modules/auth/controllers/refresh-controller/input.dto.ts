@@ -1,21 +1,26 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { BaseClassValidatorDto } from '@/infrastructure/crud-controller/nestjs/BaseClassValidatorDto';
 import { Request } from 'express';
-import { InputDTO as LogoutInputDTO } from '@/application/use-cases/auth/logout/input.dto';
+import { InputDTO as RefreshInputDTO } from '@/application/use-cases/auth/refresh-token/input.dto';
 
-export class InputDto extends BaseClassValidatorDto implements LogoutInputDTO {
+export class InputDto extends BaseClassValidatorDto implements RefreshInputDTO {
   @IsString({
-    message: 'Token deve ser um texto',
+    message: 'Refresh token deve ser um texto',
   })
   @IsNotEmpty({
-    message: 'Token é obrigatório',
+    message: 'Refresh token é obrigatório',
   })
-  token: string;
+  refreshToken: string;
+
+  ipAddress?: string;
+  userAgent?: string;
 
   static parse(req: Request): InputDto {
     const dto = new InputDto();
 
-    dto.token = req.cookies?.access_token || '';
+    dto.refreshToken = req.cookies?.refresh_token || '';
+    dto.ipAddress = req.ip;
+    dto.userAgent = req.headers['user-agent'];
 
     return dto;
   }

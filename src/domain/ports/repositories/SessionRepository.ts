@@ -7,6 +7,8 @@ import { Session } from '@/domain/entities/auth/Session';
 export interface SessionFilters {
   id?: string;
   userId?: string;
+  deviceId?: string;
+  refreshTokenHash?: string;
   isActive?: boolean;
 }
 

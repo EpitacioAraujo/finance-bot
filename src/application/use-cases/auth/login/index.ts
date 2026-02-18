@@ -13,7 +13,7 @@ export class LoginUseCase {
   ) {}
 
   async execute(input: InputDTO): Promise<OutputDTO> {
-    const { email, password } = input;
+    const { email, password, ipAddress, userAgent } = input;
 
     // Find the user by email
     const users = await this.userRepository.search({ email });
@@ -31,7 +31,11 @@ export class LoginUseCase {
       throw new BusinessError('Invalid credentials', 401);
     }
 
-    const session = await this.createNewSessionFacade.execute({ user });
+    const session = await this.createNewSessionFacade.execute({
+      user,
+      ipAddress,
+      userAgent,
+    });
 
     return session;
   }

@@ -20,6 +20,9 @@ export class UserSchema {
   @Column('varchar', { length: 255 })
   passwordHash: string;
 
+  @Column('int', { default: 1 })
+  tokenVersion: number;
+
   @Column('boolean', { default: true })
   isActive: boolean;
 

@@ -14,10 +14,10 @@ export class LogoutUseCase {
 
     try {
       // 1. Valida o JWT e extrai o sessionId
-      const tokenPayload = await this.tokenService.validateToken(token);
+      const tokenPayload = await this.tokenService.validateAccessToken(token);
 
       // 2. Busca a sessão no banco
-      const session = await this.sessionRepository.get(tokenPayload.sessionId);
+      const session = await this.sessionRepository.get(tokenPayload.sid);
 
       // 3. Verifica se a sessão existe
       if (!session) {

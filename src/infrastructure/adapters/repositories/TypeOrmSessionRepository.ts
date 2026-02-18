@@ -14,6 +14,9 @@ export class TypeOrmSessionRepository implements SessionRepository {
     const record = await this.repository.save({
       id: session.id,
       userId: session.userId,
+      deviceId: session.deviceId,
+      refreshTokenHash: session.refreshTokenHash,
+      tokenVersion: session.tokenVersion,
       ipAddress: session.ipAddress,
       userAgent: session.userAgent,
       createdAt: session.createdAt,
@@ -34,6 +37,18 @@ export class TypeOrmSessionRepository implements SessionRepository {
 
     if (filters.userId) {
       query.andWhere('session.userId = :userId', { userId: filters.userId });
+    }
+
+    if (filters.deviceId) {
+      query.andWhere('session.deviceId = :deviceId', {
+        deviceId: filters.deviceId,
+      });
+    }
+
+    if (filters.refreshTokenHash) {
+      query.andWhere('session.refreshTokenHash = :refreshTokenHash', {
+        refreshTokenHash: filters.refreshTokenHash,
+      });
     }
 
     if (filters.isActive !== undefined && filters.isActive) {
@@ -76,6 +91,9 @@ export class TypeOrmSessionRepository implements SessionRepository {
       id: schema.id,
       userId: schema.userId,
       user,
+      deviceId: schema.deviceId,
+      refreshTokenHash: schema.refreshTokenHash,
+      tokenVersion: schema.tokenVersion,
       ipAddress: schema.ipAddress,
       userAgent: schema.userAgent,
       createdAt: schema.createdAt,
