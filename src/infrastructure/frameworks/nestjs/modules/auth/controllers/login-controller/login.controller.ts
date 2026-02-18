@@ -5,6 +5,7 @@ import type { Request, Response } from 'express';
 import { LOGIN_USE_CASE_TOKEN } from '@/infrastructure/frameworks/nestjs/modules/providers';
 import { LoginUseCase } from '@/application/use-cases/auth/login';
 import { InputDto } from './input.dto';
+import { Env } from '@/domain/entities/common/env';
 
 @Controller('auth/login')
 export class LoginController {
@@ -26,8 +27,9 @@ export class LoginController {
       userAgent: req.headers['user-agent'],
     });
 
-    const isProduction = process.env.NODE_ENV === 'production';
-    const sameSite = (process.env.COOKIE_SAMESITE || 'lax') as
+    const env = Env.getInstance();
+    const isProduction = env.isProduction();
+    const sameSite = (env.COOKIE_SAMESITE || 'lax') as
       | 'lax'
       | 'strict'
       | 'none';

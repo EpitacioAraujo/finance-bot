@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import path from 'path';
+import { Env } from '@/domain/entities/common/env';
 
 const resolvedEntitiesPath = path.resolve(
   __dirname,
@@ -14,12 +15,12 @@ const resolvedEntitiesPath = path.resolve(
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  username: process.env.DB_USER || 'dibie_user',
-  password: process.env.DB_PASSWORD || 'dibie_password',
-  database: process.env.DB_NAME || 'dibie_db',
+  host: Env.getInstance().DB_HOST,
+  port: parseInt(Env.getInstance().DB_PORT, 10) || 5432,
+  username: Env.getInstance().DB_USER,
+  password: Env.getInstance().DB_PASSWORD,
+  database: Env.getInstance().DB_NAME,
   entities: [resolvedEntitiesPath],
-  synchronize: process.env.NODE_ENV !== 'production',
-  logging: process.env.DB_LOGGING === 'true',
+  synchronize: !Env.getInstance().isProduction(),
+  logging: Env.getInstance().DB_LOGGING === 'true',
 } as TypeOrmModuleOptions;

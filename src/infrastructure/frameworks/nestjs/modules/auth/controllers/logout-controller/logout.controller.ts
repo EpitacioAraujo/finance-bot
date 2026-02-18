@@ -5,6 +5,7 @@ import { LOGOUT_USE_CASE_TOKEN } from '@/infrastructure/frameworks/nestjs/module
 import { LogoutUseCase } from '@/application/use-cases/auth/logout';
 import { JwtAuthGuard } from '@/infrastructure/frameworks/nestjs/guards/jwt-auth.guard';
 import { InputDto } from './input.dto';
+import { Env } from '@/domain/entities/common/env';
 
 @Controller(`auth/logout`)
 @UseGuards(JwtAuthGuard)
@@ -23,8 +24,9 @@ export class LogoutController {
 
     await this.logoutUseCase.execute(data);
 
-    const isProduction = process.env.NODE_ENV === 'production';
-    const sameSite = (process.env.COOKIE_SAMESITE || 'lax') as
+    const env = Env.getInstance();
+    const isProduction = env.isProduction();
+    const sameSite = (env.COOKIE_SAMESITE || 'lax') as
       | 'lax'
       | 'strict'
       | 'none';

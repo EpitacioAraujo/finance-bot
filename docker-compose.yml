@@ -3,17 +3,17 @@ version: '3.8'
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: dibie-postgres
+    container_name: finance-postgres
     environment:
-      POSTGRES_USER: dibie_user
-      POSTGRES_PASSWORD: dibie_password
-      POSTGRES_DB: dibie_db
+      POSTGRES_USER: finance_user
+      POSTGRES_PASSWORD: finance_password
+      POSTGRES_DB: finance_bot
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U dibie_user -d dibie_db']
+      test: ['CMD-SHELL', 'pg_isready -U finance_user -d finance_bot -h localhost -p 5432']
       interval: 10s
       timeout: 5s
       retries: 5

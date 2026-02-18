@@ -10,6 +10,7 @@ import { BusinessError } from '@/domain/errors/BusinessError';
 import { ProcessError } from '@/domain/errors/ProcessError';
 import { ErrorResponseBuilder } from './error-response.builder';
 import { ErrorHandlers } from './error-handlers';
+import { Env } from '@/domain/entities/common/env';
 
 /**
  * GlobalExceptionFilter
@@ -33,9 +34,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly errorHandlers: ErrorHandlers;
 
   constructor() {
-    this.isDevelopment = ['development', 'staging'].includes(
-      process.env.NODE_ENV || 'production',
-    );
+    this.isDevelopment = !Env.getInstance().isProduction();
     this.errorHandlers = new ErrorHandlers(this.logger, this.isDevelopment);
   }
 
