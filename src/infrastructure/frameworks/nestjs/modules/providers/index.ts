@@ -12,6 +12,7 @@ export {
   CUSTOMER_REPOSITORY_TOKEN,
   STOCK_REPOSITORY_TOKEN,
   TRANSACTION_REPOSITORY_TOKEN,
+  PAYMENT_TYPE_REPOSITORY_TOKEN,
 } from './repositories/repositories.module';
 export {
   ServicesModule,
@@ -24,5 +25,6 @@ export {
   CREATE_ADMIN_USE_CASE_TOKEN,
   LOGIN_USE_CASE_TOKEN,
   LOGOUT_USE_CASE_TOKEN,
+  CREATE_TRANSACTION_USE_CASE_TOKEN,
 } from './use-cases/use-cases.module';
 export { ProvidersModule } from './providers.module';

@@ -8,24 +8,17 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { PaymentTypeSchema } from './PaymentType.schema';
-import { PaymentCycleSchema } from './PaymentCycle.schema';
 
-@Entity('transactions')
-export class TransactionSchema {
+@Entity('payment_cycles')
+export class PaymentCycleSchema {
   @PrimaryColumn('varchar', { length: 26 })
   id: string;
 
-  @Column('numeric', { precision: 14, scale: 2 })
-  amount: number;
-
-  @Column('varchar', { length: 10 })
-  type: 'income' | 'outcome';
-
-  @Column('text')
-  description: string;
+  @Column('timestamp')
+  start_date: Date;
 
   @Column('timestamp')
-  executionDate: Date;
+  end_date: Date;
 
   @Column('varchar', { length: 26, name: 'payment_type_id' })
   paymentTypeId: string;
@@ -33,13 +26,6 @@ export class TransactionSchema {
   @ManyToOne(() => PaymentTypeSchema)
   @JoinColumn({ name: 'payment_type_id' })
   paymentType: PaymentTypeSchema;
-
-  @Column('varchar', { length: 26, name: 'payment_cycle_id' })
-  paymentCycleId: string;
-
-  @ManyToOne(() => PaymentCycleSchema)
-  @JoinColumn({ name: 'payment_cycle_id' })
-  paymentCycle: PaymentCycleSchema;
 
   @CreateDateColumn()
   createdAt: Date;

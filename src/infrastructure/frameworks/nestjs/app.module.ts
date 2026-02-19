@@ -10,6 +10,7 @@ import { AuthModule } from '@/infrastructure/frameworks/nestjs/modules/auth/auth
 import { TransactionsModule } from '@/infrastructure/frameworks/nestjs/modules/transactions/transactions.module';
 import { ProvidersModule } from '@/infrastructure/frameworks/nestjs/modules/providers';
 import { GlobalExceptionFilter } from './filters/global-exception-filter';
+import { PaymentTypeModule } from './modules/paymentType/payment-type.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { GlobalExceptionFilter } from './filters/global-exception-filter';
     ProvidersModule,
     AuthModule,
     TransactionsModule,
+    PaymentTypeModule
   ],
   providers: [
     {

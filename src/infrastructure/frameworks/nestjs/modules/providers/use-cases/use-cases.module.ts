@@ -14,6 +14,9 @@ import { CreateAdminUseCase } from '@/application/use-cases/auth/create-admin/in
 import {
   USER_REPOSITORY_TOKEN,
   SESSION_REPOSITORY_TOKEN,
+  PAYMENT_TYPE_REPOSITORY_TOKEN,
+  TRANSACTION_REPOSITORY_TOKEN,
+  PAYMENT_CYCLE_REPOSITORY_TOKEN,
 } from '../repositories/repositories.module';
 
 import {
@@ -22,6 +25,7 @@ import {
   TOKEN_SERVICE_TOKEN,
 } from '../services/services.module';
 import { CREATE_NEW_SESSION_FACADE_TOKEN, FacadesModule } from '../facades/facades.module';
+import { CreateTransactionUseCase } from '@/application/use-cases/transaction/create/create-transaction-usecase';
 
 // Token constants for dependency injection
 export const REGISTER_USE_CASE_TOKEN = 'RegisterUseCase';
@@ -30,6 +34,7 @@ export const IS_AUTHENTICATED_USE_CASE_TOKEN = 'IsAuthenticatedUseCase';
 export const LOGOUT_USE_CASE_TOKEN = 'LogoutUseCase';
 export const REFRESH_TOKEN_USE_CASE_TOKEN = 'RefreshTokenUseCase';
 export const CREATE_ADMIN_USE_CASE_TOKEN = 'CreateAdminUseCase';
+export const CREATE_TRANSACTION_USE_CASE_TOKEN = 'CreateTransactionUseCase';
 
 /**
  * Use Case Providers Factory
@@ -112,6 +117,15 @@ const useCaseProviders: Provider[] = [
       new CreateAdminUseCase(userRepository, passwordService),
     inject: [USER_REPOSITORY_TOKEN, PASSWORD_SERVICE_TOKEN],
   },
+  {
+    provide: CREATE_TRANSACTION_USE_CASE_TOKEN,
+    useFactory: (paymentTypeRepository: any, paymentCycleRepository: any, transactionRepository: any) => new CreateTransactionUseCase(paymentTypeRepository, paymentCycleRepository, transactionRepository),
+    inject: [
+      PAYMENT_TYPE_REPOSITORY_TOKEN,
+      PAYMENT_CYCLE_REPOSITORY_TOKEN,
+      TRANSACTION_REPOSITORY_TOKEN
+    ],
+  }
 ];
 
 @Module({

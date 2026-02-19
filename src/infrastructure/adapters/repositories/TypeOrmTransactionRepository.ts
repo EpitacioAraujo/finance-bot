@@ -16,6 +16,8 @@ export class TypeOrmTransactionRepository implements TransactionRepository {
       type: transaction.type,
       description: transaction.description,
       executionDate: transaction.executionDate,
+      paymentTypeId: transaction.paymentTypeId,
+      paymentCycleId: transaction.paymentCycleId,
       createdAt: transaction.createdAt,
       updatedAt: transaction.updatedAt,
     });
@@ -86,6 +88,8 @@ export class TypeOrmTransactionRepository implements TransactionRepository {
       description: schema.description,
       type: schema.type,
       executionDate: schema.executionDate,
+      paymentTypeId: schema.paymentTypeId,
+      paymentCycleId: schema.paymentCycleId,
       createdAt: schema.createdAt,
       updatedAt: schema.updatedAt,
     });
