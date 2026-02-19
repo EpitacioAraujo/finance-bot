@@ -1,11 +1,12 @@
 import { Controller, Req, Inject, UseGuards, Get, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import * as zod from 'zod';
 
 import { LOGOUT_USE_CASE_TOKEN } from '@/infrastructure/frameworks/nestjs/modules/providers';
 import { LogoutUseCase } from '@/application/use-cases/auth/logout';
 import { JwtAuthGuard } from '@/infrastructure/frameworks/nestjs/guards/jwt-auth.guard';
-import { InputDto } from './input.dto';
 import { Env } from '@/domain/entities/common/env';
+import { BusinessError } from '@/domain/errors/BusinessError';
 
 @Controller(`auth/logout`)
 @UseGuards(JwtAuthGuard)
@@ -17,12 +18,21 @@ export class LogoutController {
 
   @Get()
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const data = InputDto.parse(req);
-    const validated = await InputDto.validate(data);
+    const inputShape = zod.object({
+      token: zod
+        .string({ error: 'Token é obrigatório' })
+        .min(1, { message: 'Token é obrigatório' }),
+    });
 
-    if (validated) return validated;
+    const input = inputShape.safeParse({
+      token: req.cookies?.access_token || '',
+    });
 
-    await this.logoutUseCase.execute(data);
+    if (!input.success) {
+      throw new BusinessError('Invalid input', 400, input.error);
+    }
+
+    await this.logoutUseCase.execute(input.data);
 
     const env = Env.getInstance();
     const isProduction = env.isProduction();
